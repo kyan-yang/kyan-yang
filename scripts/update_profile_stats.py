@@ -785,8 +785,14 @@ def intensity_levels(counts: list[int]) -> list[int]:
 
 def build_temporal_metrics(commits: list[TemporalCommit], window_end: datetime, weeks: int) -> TemporalMetrics:
     end_day = window_end.astimezone(timezone.utc).date()
+
+    # Align to GitHub-style Sun-Sat weeks.
+    # isoweekday(): Mon=1 .. Sun=7; convert so Sun=0 .. Sat=6.
+    end_weekday = end_day.isoweekday() % 7  # 0=Sun, 1=Mon, ..., 6=Sat
+    week_end_saturday = end_day + timedelta(days=6 - end_weekday)
+    start_day = week_end_saturday - timedelta(days=weeks * 7 - 1)  # always a Sunday
     total_days = weeks * 7
-    start_day = end_day - timedelta(days=total_days - 1)
+
     daily_counts: dict[date, int] = {
         start_day + timedelta(days=offset): 0 for offset in range(total_days)
     }
@@ -802,8 +808,18 @@ def build_temporal_metrics(commits: list[TemporalCommit], window_end: datetime, 
 
     days = [start_day + timedelta(days=offset) for offset in range(total_days)]
     counts = [daily_counts[day] for day in days]
-    levels = intensity_levels(counts)
-    weekly_counts = [sum(counts[index : index + 7]) for index in range(0, len(counts), 7)]
+
+    # Only compute intensity levels for past/present days; future days get level -1.
+    past_counts = [c for d, c in zip(days, counts) if d <= end_day]
+    past_levels = intensity_levels(past_counts)
+    level_iter = iter(past_levels)
+    all_levels = [next(level_iter) if d <= end_day else -1 for d in days]
+
+    # Weekly aggregates (only count past days for each week).
+    weekly_counts = [
+        sum(c for d, c in zip(days[i : i + 7], counts[i : i + 7]) if d <= end_day)
+        for i in range(0, len(counts), 7)
+    ]
     active_weeks = sum(1 for count in weekly_counts if count > 0)
     streak = 0
     for count in reversed(weekly_counts):
@@ -820,7 +836,7 @@ def build_temporal_metrics(commits: list[TemporalCommit], window_end: datetime, 
         weeks=weeks,
         cells=[
             TemporalCell(day=day, count=count, level=level)
-            for day, count, level in zip(days, counts, levels)
+            for day, count, level in zip(days, counts, all_levels)
         ],
         peak_velocity=max(weekly_counts, default=0),
         consistency_score=score,
@@ -1071,15 +1087,17 @@ def render_activity_frame(username: str, metrics: TemporalMetrics, summary: Week
     draw.line((cx, panel_y - 24 * scale, cx, panel_y + panel_h + 12 * scale), fill=(240, 221, 216, 14), width=1)
     draw.line((panel_x - 20 * scale, cy, panel_x + panel_w + 20 * scale, cy), fill=(240, 221, 216, 14), width=1)
 
-    # Heatmap grid
+    # Heatmap grid (Sun=row0 .. Sat=row6, columns = weeks)
     grid_x = panel_x + panel_pad
     grid_y = panel_y + panel_pad
+    colors = {0: (58, 26, 28, 225), 1: (92, 38, 42, 235), 2: (136, 62, 67, 240), 3: (196, 122, 127, 245), 4: (240, 221, 216, 250)}
     for index, cell in enumerate(metrics.cells):
+        if cell.level < 0:
+            continue  # future day — no square
         column = index // 7
         row = index % 7
         x = grid_x + column * (cell_size + gap)
         y = grid_y + row * (cell_size + gap)
-        colors = {0: (58, 26, 28, 225), 1: (92, 38, 42, 235), 2: (136, 62, 67, 240), 3: (196, 122, 127, 245), 4: (240, 221, 216, 250)}
         if cell.level >= 3:
             pulse = 0.82 + 0.18 * math.sin(phase + index * 0.18)
             glow_fill = (196, 122, 127, int(70 * pulse)) if cell.level == 3 else (240, 221, 216, int(90 * pulse))
@@ -1142,8 +1160,32 @@ def render_activity_gif(username: str, metrics: TemporalMetrics, summary: Weekly
     return output.getvalue()
 
 
-def render_activity_preview() -> str:
-    return """<!DOCTYPE html>
+def render_activity_preview(username: str = "", metrics: "TemporalMetrics | None" = None) -> str:
+    if metrics:
+        cell_levels = [c.level for c in metrics.cells]
+        grid_cols = min(len(cell_levels) // 7, 26) if cell_levels else 26
+        cell_data_js = json.dumps(cell_levels)
+        username_display = username.upper().replace("-", "_") or "PROFILE_IDX_04"
+        period_str = f"{metrics.start_day.strftime('%Y.%m')} - {metrics.end_day.strftime('%Y.%m')}"
+        peak_vel = f"{metrics.peak_velocity}/wk"
+        cons_label = metrics.consistency_label
+        cons_score = f"{metrics.consistency_score:.2f}"
+        streak_str = f"STREAK: {metrics.streak_weeks} WEEKS"
+        bias_str = metrics.temporal_bias
+        clock_str = metrics.observed_clock
+    else:
+        cell_data_js = "null"
+        grid_cols = 26
+        username_display = "PROFILE_IDX_04"
+        period_str = "2023.10 - 2024.10"
+        peak_vel = "142/wk"
+        cons_label = "Alpha"
+        cons_score = "0.94"
+        streak_str = "STREAK: 42 WEEKS"
+        bias_str = "Nocturnal"
+        clock_str = "UTC+2 OBSERVED"
+
+    html = """<!DOCTYPE html>
 <html lang="en"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1207,7 +1249,8 @@ def render_activity_preview() -> str:
         }
         .heatmap-container {
             margin-top: 10px;
-            display: grid; grid-template-columns: repeat(26, 12px); grid-template-rows: repeat(7, 12px); gap: 3px;
+            display: grid; grid-template-columns: repeat(""" + str(grid_cols) + """, 12px); grid-template-rows: repeat(7, 12px); gap: 3px;
+            grid-auto-flow: column;
             padding: 10px; background: rgba(13, 17, 23, 0.4);
             border: 1px solid var(--line-subtle);
             backdrop-filter: blur(4px); box-shadow: 0 0 30px rgba(0,0,0,0.5);
@@ -1238,14 +1281,14 @@ def render_activity_preview() -> str:
         <div class="specimen-data">
             <div class="header-left">
                 <div class="label-bracket">IDENTIFIER</div>
-                <div class="mono-value">PROFILE_IDX_04</div>
+                <div class="mono-value">__USERNAME__</div>
                 <div class="mono-tiny">TEMPORAL DENSITY ANALYSIS</div>
-                <div class="mono-tiny">PERIOD: 2023.10 - 2024.10</div>
+                <div class="mono-tiny">PERIOD: __PERIOD__</div>
             </div>
             <div class="header-right">
                 <div class="label-bracket">VOLUMETRICS</div>
                 <div class="mono-tiny">PEAK VELOCITY</div>
-                <div class="serif-display" style="font-size: 2rem; margin-top: -2px;">142/wk</div>
+                <div class="serif-display" style="font-size: 2rem; margin-top: -2px;">__PEAK_VEL__</div>
             </div>
             <div class="center-display">
                 <div class="crosshair"></div>
@@ -1264,32 +1307,44 @@ def render_activity_preview() -> str:
             <div class="bottom-left">
                 <div class="mono-tiny">CONSISTENCY RATING</div>
                 <div class="data-group">
-                    <div class="serif-display" style="font-size: 1.2rem;">Alpha <span class="mono-tiny" style="vertical-align: middle;">[ 0.94 ]</span></div>
+                    <div class="serif-display" style="font-size: 1.2rem;">__CONS_LABEL__ <span class="mono-tiny" style="vertical-align: middle;">[ __CONS_SCORE__ ]</span></div>
                 </div>
                 <div class="fraction-line"></div>
-                <div class="mono-tiny">STREAK: 42 WEEKS</div>
+                <div class="mono-tiny">__STREAK__</div>
             </div>
             <div class="bottom-right">
                 <div class="mono-tiny">TEMPORAL BIAS</div>
                 <div class="data-group">
-                    <div class="serif-display" style="font-size: 1.2rem;">Nocturnal</div>
+                    <div class="serif-display" style="font-size: 1.2rem;">__BIAS__</div>
                 </div>
                 <div class="fraction-line"></div>
-                <div class="mono-tiny">UTC+2 OBSERVED</div>
+                <div class="mono-tiny">__CLOCK__</div>
             </div>
         </div>
     </div>
     <script>
+        const cellData = __CELL_DATA__;
         const grid = document.getElementById('heatmap-grid');
-        for (let i = 0; i < 26 * 7; i++) {
-            const cell = document.createElement('div');
-            cell.className = 'cell';
-            const rand = Math.random();
-            if (rand > 0.92) cell.classList.add('level-4');
-            else if (rand > 0.75) cell.classList.add('level-3');
-            else if (rand > 0.5) cell.classList.add('level-2');
-            else if (rand > 0.25) cell.classList.add('level-1');
-            grid.appendChild(cell);
+        if (cellData) {
+            for (let i = 0; i < cellData.length; i++) {
+                const level = cellData[i];
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                if (level < 0) { cell.style.visibility = 'hidden'; }
+                else if (level >= 1) { cell.classList.add('level-' + level); }
+                grid.appendChild(cell);
+            }
+        } else {
+            for (let i = 0; i < 26 * 7; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                const rand = Math.random();
+                if (rand > 0.92) cell.classList.add('level-4');
+                else if (rand > 0.75) cell.classList.add('level-3');
+                else if (rand > 0.5) cell.classList.add('level-2');
+                else if (rand > 0.25) cell.classList.add('level-1');
+                grid.appendChild(cell);
+            }
         }
         const canvas = document.getElementById('gl-canvas');
         const gl = canvas.getContext('webgl');
@@ -1359,6 +1414,16 @@ def render_activity_preview() -> str:
     </script>
 </body></html>
 """
+    html = html.replace("__USERNAME__", username_display)
+    html = html.replace("__PERIOD__", period_str)
+    html = html.replace("__PEAK_VEL__", peak_vel)
+    html = html.replace("__CONS_LABEL__", cons_label)
+    html = html.replace("__CONS_SCORE__", cons_score)
+    html = html.replace("__STREAK__", streak_str)
+    html = html.replace("__BIAS__", bias_str)
+    html = html.replace("__CLOCK__", clock_str)
+    html = html.replace("__CELL_DATA__", cell_data_js)
+    return html
 
 
 def busiest_day(commits: list[CommitRecord], window_end: datetime, window_days: int) -> tuple[date, RepoStats] | None:
@@ -1529,7 +1594,7 @@ def main() -> int:
     weekly_summary = build_weekly_summary(collected, window_days)
     temporal_metrics = build_temporal_metrics(temporal_commits, window_end, temporal_weeks)
     activity_gif = render_activity_gif(username, temporal_metrics, weekly_summary)
-    activity_preview = render_activity_preview()
+    activity_preview = render_activity_preview(username, temporal_metrics)
 
     if os.getenv("PROFILE_STATS_DRY_RUN", "").strip() == "1":
         print(block)
