@@ -10,13 +10,13 @@ Code, experiments, and a weekly snapshot of shipped work generated straight from
 ## Activity Dashboard
 
 <p align="center">
-  <img src="./assets/activity-card.gif" alt="Temporal activity dashboard card" width="100%" />
+  <img src="./assets/activity-card.svg" alt="Temporal activity dashboard card" width="100%" />
 </p>
 
 <details>
 <summary>Open raw 7-day breakdown</summary>
 
-<sub>Updated 2026-03-11 05:42 UTC</sub>
+<sub>Updated 2026-03-11 07:13 UTC</sub>
 
 - Added: +21,173
 - Deleted: -5,096

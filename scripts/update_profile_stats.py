@@ -8,6 +8,8 @@ import json
 import math
 import os
 import sys
+import tempfile
+from io import BytesIO
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -42,7 +44,7 @@ load_dotenv()
 
 API_ROOT = "https://api.github.com"
 README_PATH = Path(os.getenv("PROFILE_STATS_README", "README.md"))
-GIF_PATH = Path(os.getenv("PROFILE_STATS_GIF", "assets/activity-card.gif"))
+SVG_PATH = Path(os.getenv("PROFILE_STATS_IMAGE", os.getenv("PROFILE_STATS_GIF", "assets/activity-card.svg")))
 HTML_PREVIEW_PATH = Path(os.getenv("PROFILE_STATS_HTML_PREVIEW", "assets/activity-card-preview.html"))
 REQUEST_TIMEOUT_SECONDS = 30
 START_MARKER = "<!-- profile-stats:start -->"
@@ -197,6 +199,7 @@ class TemporalMetrics:
     consistency_score: float
     consistency_label: str
     streak_weeks: int
+    streak_days: int
     temporal_bias: str
     observed_clock: str
 
@@ -213,6 +216,19 @@ class WeeklySummary:
     active_days: int
     average_changed: int
     average_active_day: int
+
+
+@dataclass
+class DashboardCardData:
+    identifier: str
+    runtime_status: str
+    total_commits: int
+    total_additions: int
+    total_deletions: int
+    repo_count: int
+    window_days: int
+    heatmap_levels: list[int]
+    language_segments: list[tuple[str, float]]
 
 
 class GitHubError(RuntimeError):
@@ -243,6 +259,17 @@ def parse_iso8601(value: str | None) -> datetime | None:
 
 def format_int(value: int) -> str:
     return f"{value:,}"
+
+
+def format_compact_int(value: int) -> str:
+    absolute = abs(value)
+    if absolute >= 1_000_000:
+        compact = f"{absolute / 1_000_000:.1f}".rstrip("0").rstrip(".")
+        return f"{compact}M"
+    if absolute >= 1_000:
+        compact = f"{absolute / 1_000:.1f}".rstrip("0").rstrip(".")
+        return f"{compact}K"
+    return str(absolute)
 
 
 def format_percent(value: float) -> str:
@@ -722,6 +749,21 @@ def collect_temporal_commits(username: str, window_start: datetime, window_end: 
     return commit_records, warnings
 
 
+def count_merged_pull_requests(username: str, window_start: datetime, window_end: datetime) -> int:
+    query = " ".join(
+        [
+            "is:pr",
+            "is:merged",
+            f"author:{username}",
+            f"merged:{window_start.date().isoformat()}..{window_end.date().isoformat()}",
+        ]
+    )
+    data, _ = api_get("/search/issues", {"q": query, "per_page": 1})
+    if not isinstance(data, dict):
+        raise GitHubError("Expected pull request search response from GitHub.")
+    return int(data.get("total_count", 0))
+
+
 def classify_temporal_bias(hours: list[int]) -> tuple[str, str]:
     if not any(hours):
         return "Undetermined", "UTC BASELINE"
@@ -749,6 +791,41 @@ def consistency_label(score: float) -> str:
     if score >= 0.45:
         return "Delta"
     return "Epsilon"
+
+
+def runtime_status(score: float) -> str:
+    if score >= 0.92:
+        return "OPTIMIZED"
+    if score >= 0.8:
+        return "STABLE"
+    if score >= 0.65:
+        return "CALIBRATED"
+    if score >= 0.45:
+        return "VARIABLE"
+    return "SPARSE"
+
+
+def language_breakdown(per_language: dict[str, RepoStats], limit: int = 4) -> list[tuple[str, int]]:
+    ranked = sorted(
+        ((language, stats.changed) for language, stats in per_language.items() if stats.changed > 0),
+        key=lambda item: (item[1], item[0]),
+        reverse=True,
+    )
+    if len(ranked) <= limit:
+        return ranked
+    top = ranked[: limit - 1]
+    other_total = sum(total for _, total in ranked[limit - 1 :])
+    top.append(("Other", other_total))
+    return top
+
+
+def render_language_donut(per_language: dict[str, RepoStats]) -> list[tuple[str, float]]:
+    segments = language_breakdown(per_language)
+    if not segments:
+        return []
+
+    total = sum(amount for _, amount in segments)
+    return [(language, amount / total if total else 0.0) for language, amount in segments]
 
 
 def intensity_levels(counts: list[int]) -> list[int]:
@@ -785,12 +862,7 @@ def intensity_levels(counts: list[int]) -> list[int]:
 
 def build_temporal_metrics(commits: list[TemporalCommit], window_end: datetime, weeks: int) -> TemporalMetrics:
     end_day = window_end.astimezone(timezone.utc).date()
-
-    # Align to GitHub-style Sun-Sat weeks.
-    # isoweekday(): Mon=1 .. Sun=7; convert so Sun=0 .. Sat=6.
-    end_weekday = end_day.isoweekday() % 7  # 0=Sun, 1=Mon, ..., 6=Sat
-    week_end_saturday = end_day + timedelta(days=6 - end_weekday)
-    start_day = week_end_saturday - timedelta(days=weeks * 7 - 1)  # always a Sunday
+    start_day = end_day - timedelta(days=weeks * 7 - 1)
     total_days = weeks * 7
 
     daily_counts: dict[date, int] = {
@@ -808,16 +880,11 @@ def build_temporal_metrics(commits: list[TemporalCommit], window_end: datetime, 
 
     days = [start_day + timedelta(days=offset) for offset in range(total_days)]
     counts = [daily_counts[day] for day in days]
+    all_levels = intensity_levels(counts)
 
-    # Only compute intensity levels for past/present days; future days get level -1.
-    past_counts = [c for d, c in zip(days, counts) if d <= end_day]
-    past_levels = intensity_levels(past_counts)
-    level_iter = iter(past_levels)
-    all_levels = [next(level_iter) if d <= end_day else -1 for d in days]
-
-    # Weekly aggregates (only count past days for each week).
+    # Weekly aggregates across the exact trailing window.
     weekly_counts = [
-        sum(c for d, c in zip(days[i : i + 7], counts[i : i + 7]) if d <= end_day)
+        sum(counts[i : i + 7])
         for i in range(0, len(counts), 7)
     ]
     active_weeks = sum(1 for count in weekly_counts if count > 0)
@@ -826,6 +893,11 @@ def build_temporal_metrics(commits: list[TemporalCommit], window_end: datetime, 
         if count <= 0:
             break
         streak += 1
+    streak_days = 0
+    for count in reversed(counts):
+        if count <= 0:
+            break
+        streak_days += 1
 
     bias, observed_clock = classify_temporal_bias(hours)
     score = active_weeks / weeks if weeks else 0.0
@@ -842,6 +914,7 @@ def build_temporal_metrics(commits: list[TemporalCommit], window_end: datetime, 
         consistency_score=score,
         consistency_label=consistency_label(score),
         streak_weeks=streak,
+        streak_days=streak_days,
         temporal_bias=bias,
         observed_clock=observed_clock,
     )
@@ -870,6 +943,37 @@ def build_weekly_summary(collected: CollectedStats, window_days: int) -> WeeklyS
         active_days=active_days,
         average_changed=average_changed,
         average_active_day=average_active_day,
+    )
+
+
+def build_dashboard_card(
+    username: str,
+    summary: WeeklySummary,
+    fortnight_collected: CollectedStats,
+    temporal_metrics: TemporalMetrics,
+) -> DashboardCardData:
+    heatmap_levels: list[int] = []
+    for cell in temporal_metrics.cells:
+        if cell.level <= 0:
+            heatmap_levels.append(0)
+        elif cell.level == 1:
+            heatmap_levels.append(1)
+        elif cell.level in (2, 3):
+            heatmap_levels.append(2)
+        else:
+            heatmap_levels.append(3)
+    language_segments = render_language_donut(fortnight_collected.per_language)
+
+    return DashboardCardData(
+        identifier=f"{username.upper().replace('-', '_')} // {temporal_metrics.consistency_label.upper()}",
+        runtime_status=runtime_status(temporal_metrics.consistency_score),
+        total_commits=len(fortnight_collected.commits),
+        total_additions=summary.total_additions,
+        total_deletions=summary.total_deletions,
+        repo_count=len(fortnight_collected.per_repo),
+        window_days=temporal_metrics.weeks * 7,
+        heatmap_levels=heatmap_levels,
+        language_segments=language_segments,
     )
 
 def last_n_dates(window_end: datetime, window_days: int) -> list[date]:
@@ -999,16 +1103,33 @@ def render_activity_frame(username: str, metrics: TemporalMetrics, summary: Week
     phase = (frame_index / frame_count) * math.tau
     pad = 24 * scale
 
+    # Background nebula (approximating the WebGL fbm shader)
+    # Layer 1: large diffuse base wash
+    base_glow = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    base_draw = ImageDraw.Draw(base_glow)
+    base_blobs = [
+        (size * 0.50, size * 0.50, size * 0.90, size * 0.85, (100, 38, 42, 130)),
+        (size * 0.45, size * 0.46, size * 0.75, size * 0.70, (136, 62, 67, 110)),
+        (size * 0.55, size * 0.54, size * 0.65, size * 0.60, (136, 62, 67, 90)),
+    ]
+    for cx, cy, w, h, fill in base_blobs:
+        base_draw.ellipse((cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2), fill=fill)
+    base_glow = base_glow.filter(ImageFilter.GaussianBlur(radius=max(20, int(40 * scale))))
+    background.alpha_composite(base_glow)
+
+    # Layer 2: animated detail blobs
     glow = Image.new("RGBA", (size, size), (0, 0, 0, 0))
     glow_draw = ImageDraw.Draw(glow)
     blobs = [
-        (size * 0.48 + math.sin(phase * 0.9) * size * 0.03, size * 0.46 + math.cos(phase * 1.2) * size * 0.02, size * 0.54, size * 0.48, (125, 51, 57, 108)),
-        (size * 0.60 + math.cos(phase * 1.1) * size * 0.025, size * 0.55 + math.sin(phase * 0.8) * size * 0.03, size * 0.36, size * 0.34, (240, 221, 216, 28)),
-        (size * 0.40 + math.sin(phase * 0.6) * size * 0.03, size * 0.38 + math.sin(phase * 1.4) * size * 0.02, size * 0.46, size * 0.42, (91, 38, 43, 52)),
+        (size * 0.48 + math.sin(phase * 0.9) * size * 0.04, size * 0.44 + math.cos(phase * 1.2) * size * 0.03, size * 0.55, size * 0.50, (136, 62, 67, 160)),
+        (size * 0.58 + math.cos(phase * 1.1) * size * 0.03, size * 0.52 + math.sin(phase * 0.8) * size * 0.04, size * 0.42, size * 0.40, (196, 122, 127, 80)),
+        (size * 0.38 + math.sin(phase * 0.6) * size * 0.035, size * 0.40 + math.sin(phase * 1.4) * size * 0.03, size * 0.48, size * 0.44, (91, 38, 43, 120)),
+        (size * 0.52 + math.cos(phase * 0.7) * size * 0.02, size * 0.38 + math.sin(phase * 1.0) * size * 0.025, size * 0.32, size * 0.30, (196, 122, 127, 55)),
+        (size * 0.44 + math.sin(phase * 1.3) * size * 0.03, size * 0.56 + math.cos(phase * 0.5) * size * 0.025, size * 0.38, size * 0.35, (136, 62, 67, 100)),
     ]
     for cx, cy, w, h, fill in blobs:
         glow_draw.ellipse((cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2), fill=fill)
-    glow = glow.filter(ImageFilter.GaussianBlur(radius=max(12, int(20 * scale))))
+    glow = glow.filter(ImageFilter.GaussianBlur(radius=max(14, int(24 * scale))))
     background.alpha_composite(glow)
 
     # Vignette overlay (radial gradient: transparent center, opaque edges)
@@ -1150,280 +1271,181 @@ def render_activity_frame(username: str, metrics: TemporalMetrics, summary: Week
     return background.convert("RGB")
 
 
-def render_activity_gif(username: str, metrics: TemporalMetrics, summary: WeeklySummary) -> bytes:
-    frame_count = 16
-    frames = [render_activity_frame(username, metrics, summary, index, frame_count) for index in range(frame_count)]
-    palette_frames = [frame.convert("P", palette=Image.ADAPTIVE, colors=128) for frame in frames]
-    from io import BytesIO
-    output = BytesIO()
-    palette_frames[0].save(output, format="GIF", save_all=True, append_images=palette_frames[1:], duration=90, loop=0, optimize=True, disposal=2)
-    return output.getvalue()
+def render_activity_svg(card: DashboardCardData | None = None) -> str:
+    if card is None:
+        card = DashboardCardData(
+            identifier="DASH_IDX_04 // ALPHA",
+            runtime_status="OPTIMIZED",
+            total_commits=182,
+            total_additions=2_400_000,
+            total_deletions=1_100_000,
+            repo_count=12,
+            window_days=154,
+            heatmap_levels=[(index % 4) for index in range(154)],
+            language_segments=[
+                ("TypeScript", 0.42),
+                ("Python", 0.28),
+                ("Go", 0.18),
+                ("Other", 0.12),
+            ],
+        )
 
+    def arc_path(cx: float, cy: float, radius: float, start: float, end: float) -> str:
+        start_x = cx + radius * math.cos(start)
+        start_y = cy + radius * math.sin(start)
+        end_x = cx + radius * math.cos(end)
+        end_y = cy + radius * math.sin(end)
+        large_arc = 1 if end - start > math.pi else 0
+        return (
+            f"M {start_x:.3f} {start_y:.3f} "
+            f"A {radius:.3f} {radius:.3f} 0 {large_arc} 1 {end_x:.3f} {end_y:.3f}"
+        )
 
-def render_activity_preview(username: str = "", metrics: "TemporalMetrics | None" = None) -> str:
-    if metrics:
-        cell_levels = [c.level for c in metrics.cells]
-        grid_cols = min(len(cell_levels) // 7, 26) if cell_levels else 26
-        cell_data_js = json.dumps(cell_levels)
-        username_display = username.upper().replace("-", "_") or "PROFILE_IDX_04"
-        period_str = f"{metrics.start_day.strftime('%Y.%m')} - {metrics.end_day.strftime('%Y.%m')}"
-        peak_vel = f"{metrics.peak_velocity}/wk"
-        cons_label = metrics.consistency_label
-        cons_score = f"{metrics.consistency_score:.2f}"
-        streak_str = f"STREAK: {metrics.streak_weeks} WEEKS"
-        bias_str = metrics.temporal_bias
-        clock_str = metrics.observed_clock
-    else:
-        cell_data_js = "null"
-        grid_cols = 26
-        username_display = "PROFILE_IDX_04"
-        period_str = "2023.10 - 2024.10"
-        peak_vel = "142/wk"
-        cons_label = "Alpha"
-        cons_score = "0.94"
-        streak_str = "STREAK: 42 WEEKS"
-        bias_str = "Nocturnal"
-        clock_str = "UTC+2 OBSERVED"
+    heatmap_colors = {
+        0: "#1B1A22",
+        1: "rgba(136, 62, 67, 0.32)",
+        2: "rgba(136, 62, 67, 0.62)",
+        3: "#883E43",
+    }
+    heatmap_glow = {
+        3: ' filter="url(#cellGlow)"',
+    }
+    heatmap_cells: list[str] = []
+    grid_x = 24
+    grid_y = 253
+    cell_size = 17
+    gap = 3
+    for index, level in enumerate(card.heatmap_levels[: 22 * 7]):
+        column = index % 22
+        row = index // 22
+        x = grid_x + column * (cell_size + gap)
+        y = grid_y + row * (cell_size + gap)
+        heatmap_cells.append(
+            f'<rect x="{x}" y="{y}" width="{cell_size}" height="{cell_size}" '
+            f'fill="{heatmap_colors.get(level, heatmap_colors[0])}" rx="0.8"{heatmap_glow.get(level, "")}></rect>'
+        )
 
-    html = """<!DOCTYPE html>
-<html lang="en"><head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GitHub Specimen // Temporal Activity</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    palette = ["#F0DDD8", "#C47A7F", "#883E43", "#5C262A"]
+    donut_paths: list[str] = []
+    legend_rows: list[str] = []
+    cx = 332
+    cy = 151
+    radius = 38
+    circumference = 2 * math.pi * radius
+    offset = -math.pi / 2
+    for index, (language, share) in enumerate(card.language_segments):
+        color = palette[index % len(palette)]
+        start = offset
+        end = offset + (share * math.tau)
+        if share > 0:
+            donut_paths.append(
+                f'<path d="{arc_path(cx, cy, radius, start, end)}" fill="none" stroke="{color}" stroke-width="17" stroke-linecap="butt"></path>'
+            )
+        label_y = 124 + index * 18
+        legend_rows.append(
+            f'<circle cx="389" cy="{label_y}" r="4" fill="{color}"></circle>'
+            f'<text x="400" y="{label_y + 2}" class="legend-label">{xml_escape(language[:11])}</text>'
+            f'<text x="452" y="{label_y + 2}" class="legend-value">{format_percent(share * 100)}</text>'
+        )
+        offset = end
+
+    svg = f"""<svg width="480" height="480" viewBox="0 0 480 480" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="GitHub activity dashboard">
+  <defs>
+    <radialGradient id="rubyGlowA" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(192 264) rotate(90) scale(150 190)">
+      <stop stop-color="#883E43" stop-opacity="0.45"/>
+      <stop offset="0.35" stop-color="#64272D" stop-opacity="0.25"/>
+      <stop offset="0.7" stop-color="#0D1117" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="rubyGlowB" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(336 144) rotate(90) scale(110 135)">
+      <stop stop-color="#501E23" stop-opacity="0.3"/>
+      <stop offset="0.6" stop-color="#0D1117" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="vignette" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(240 240) rotate(90) scale(240)">
+      <stop offset="0.15" stop-color="#0D1117" stop-opacity="0"/>
+      <stop offset="0.5" stop-color="#0D1117" stop-opacity="0.6"/>
+      <stop offset="0.8" stop-color="#0D1117"/>
+    </radialGradient>
+    <filter id="cellGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2.5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
     <style>
-        :root {
-            --bg-edge: #0d1117;
-            --text-cream: #F0DDD8;
-            --text-muted: rgba(240, 221, 216, 0.5);
-            --line-subtle: rgba(240, 221, 216, 0.12);
-            --ruby-glow: rgba(136, 62, 67, 0.6);
-            --ruby-dark: #3a1a1c;
-            --ruby-base: #883E43;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            background-color: var(--bg-edge);
-            display: flex; justify-content: center; align-items: center;
-            min-height: 100vh;
-            font-family: 'Space Mono', monospace;
-            color: var(--text-cream);
-            -webkit-font-smoothing: antialiased;
-            overflow: hidden;
-        }
-        .specimen-artwork { position: relative; width: 480px; height: 480px; overflow: hidden; }
-        #gl-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; background: var(--bg-edge); }
-        .vignette-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2;
-            background: radial-gradient(circle at center, transparent 20%, var(--bg-edge) 100%);
-            pointer-events: none;
-        }
-        .specimen-data {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 3;
-            padding: 24px;
-            display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto 1fr auto;
-            pointer-events: none;
-        }
-        .mono-tiny {
-            font-family: 'Space Mono', monospace; font-size: 9px;
-            text-transform: uppercase; letter-spacing: 0.12em;
-            color: var(--text-muted); line-height: 1.4;
-        }
-        .mono-value {
-            font-family: 'Space Mono', monospace; font-size: 11px; font-weight: 700;
-            color: var(--text-cream); letter-spacing: 0.05em;
-        }
-        .serif-display { font-family: 'Cormorant Garamond', serif; color: var(--text-cream); line-height: 1; }
-        .header-left { grid-column: 1; grid-row: 1; display: flex; flex-direction: column; gap: 2px; }
-        .header-right { grid-column: 2; grid-row: 1; text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
-        .label-bracket {
-            display: inline-block; border: 1px solid var(--line-subtle);
-            padding: 2px 6px; font-size: 8px; letter-spacing: 0.15em; margin-bottom: 6px;
-        }
-        .center-display {
-            grid-column: 1 / 3; grid-row: 2;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            position: relative;
-        }
-        .heatmap-container {
-            margin-top: 10px;
-            display: grid; grid-template-columns: repeat(""" + str(grid_cols) + """, 12px); grid-template-rows: repeat(7, 12px); gap: 3px;
-            grid-auto-flow: column;
-            padding: 10px; background: rgba(13, 17, 23, 0.4);
-            border: 1px solid var(--line-subtle);
-            backdrop-filter: blur(4px); box-shadow: 0 0 30px rgba(0,0,0,0.5);
-        }
-        .cell { width: 12px; height: 12px; background: var(--ruby-dark); border-radius: 1px; opacity: 0.8; }
-        .cell.level-1 { background: #5c262a; }
-        .cell.level-2 { background: #883e43; }
-        .cell.level-3 { background: #c47a7f; box-shadow: 0 0 4px var(--ruby-glow); }
-        .cell.level-4 { background: #f0ddd8; box-shadow: 0 0 8px rgba(240, 221, 216, 0.4); }
-        .heatmap-legend { margin-top: 12px; display: flex; align-items: center; gap: 8px; }
-        .crosshair {
-            position: absolute; width: 100%; height: 100%;
-            display: flex; justify-content: center; align-items: center;
-            z-index: -1; opacity: 0.2;
-        }
-        .crosshair::before { content: ''; position: absolute; width: 1px; height: 320px; background: var(--line-subtle); }
-        .crosshair::after { content: ''; position: absolute; width: 400px; height: 1px; background: var(--line-subtle); }
-        .bottom-left { grid-column: 1; grid-row: 3; align-self: end; border-left: 1px solid var(--line-subtle); padding-left: 10px; }
-        .bottom-right { grid-column: 2; grid-row: 3; align-self: end; text-align: right; border-right: 1px solid var(--line-subtle); padding-right: 10px; }
-        .data-group { margin-top: 12px; }
-        .fraction-line { width: 100%; height: 1px; background: var(--line-subtle); margin: 6px 0; }
+      .mono {{ font-family: "Space Mono", "SFMono-Regular", Consolas, monospace; fill: #F0DDD8; }}
+      .serif {{ font-family: "Cormorant Garamond", Georgia, serif; fill: #F0DDD8; }}
+      .tiny {{ font-size: 9px; letter-spacing: 1.6px; text-transform: uppercase; fill: rgba(240, 221, 216, 0.5); }}
+      .small {{ font-size: 12px; letter-spacing: 0.2px; }}
+      .legend-label {{ font-family: "Space Mono", "SFMono-Regular", Consolas, monospace; font-size: 8px; letter-spacing: 0.7px; fill: rgba(240, 221, 216, 0.82); text-transform: uppercase; }}
+      .legend-value {{ font-family: "Space Mono", "SFMono-Regular", Consolas, monospace; font-size: 8px; letter-spacing: 0.5px; fill: rgba(240, 221, 216, 0.5); text-anchor: end; }}
     </style>
+  </defs>
+  <rect width="480" height="480" fill="#0D1117"/>
+  <rect width="480" height="480" fill="url(#rubyGlowA)"/>
+  <rect width="480" height="480" fill="url(#rubyGlowB)"/>
+  <rect width="480" height="480" fill="url(#vignette)"/>
+  <line x1="0" y1="240.5" x2="480" y2="240.5" stroke="rgba(240, 221, 216, 0.12)" stroke-opacity="0.4"/>
+
+  <line x1="24" y1="81.5" x2="456" y2="81.5" stroke="rgba(240, 221, 216, 0.12)"/>
+  <rect x="24.5" y="29.5" width="112" height="18" stroke="rgba(240, 221, 216, 0.12)"/>
+  <text x="33" y="41" class="mono tiny">SYSTEM_EXPANSION</text>
+  <text x="24" y="65" class="mono small" font-weight="700">{xml_escape(card.identifier)}</text>
+
+  <text x="456" y="35" class="mono tiny" text-anchor="end">RUNTIME STATUS</text>
+  <text x="456" y="52" class="mono small" font-weight="700" fill="#C47A7F" text-anchor="end">{xml_escape(card.runtime_status)}</text>
+
+  <text x="122" y="114" class="mono tiny" text-anchor="middle">IN THE PAST 14 DAYS</text>
+  <text x="122" y="178" class="serif" font-size="66" font-style="italic" text-anchor="middle">{format_int(card.total_commits)}</text>
+  <text x="122" y="206" class="mono tiny" text-anchor="middle" letter-spacing="3.2px">COMMITS</text>
+
+  <line x1="248.5" y1="102" x2="248.5" y2="211" stroke="rgba(240, 221, 216, 0.12)"/>
+  <circle cx="{cx}" cy="{cy}" r="{radius}" stroke="rgba(240, 221, 216, 0.08)" stroke-width="17"/>
+  {''.join(donut_paths)}
+  <circle cx="{cx}" cy="{cy}" r="22" fill="#0D1117"/>
+  <text x="{cx}" y="{cy - 4}" class="mono" font-size="10" text-anchor="middle">LANG</text>
+  <text x="{cx}" y="{cy + 13}" class="mono tiny" text-anchor="middle">{len(card.language_segments)} MIX</text>
+  <text x="389" y="110" class="mono tiny">LANGUAGE</text>
+  {''.join(legend_rows)}
+
+  <text x="24" y="240" class="mono tiny">CONTRIBUTION_MAP / {card.window_days}_DAY_WINDOW</text>
+  {''.join(heatmap_cells)}
+
+  <line x1="24" y1="410.5" x2="456" y2="410.5" stroke="rgba(240, 221, 216, 0.12)"/>
+  <line x1="154.5" y1="423" x2="154.5" y2="457" stroke="rgba(240, 221, 216, 0.12)"/>
+  <line x1="300.5" y1="423" x2="300.5" y2="457" stroke="rgba(240, 221, 216, 0.12)"/>
+
+  <text x="24" y="428" class="mono tiny">ADDITIONS</text>
+  <text x="24" y="449" class="mono small" font-weight="700">+ {format_compact_int(card.total_additions)}</text>
+
+  <text x="179" y="428" class="mono tiny">DELETIONS</text>
+  <text x="179" y="449" class="mono small" font-weight="700">- {format_compact_int(card.total_deletions)}</text>
+
+  <text x="324" y="428" class="mono tiny">REPOSITORIES</text>
+  <text x="324" y="449" class="mono small" font-weight="700">{format_int(card.repo_count)} REPOS</text>
+</svg>
+"""
+    return svg
+
+
+def render_activity_preview(card: DashboardCardData | None = None) -> str:
+    svg = render_activity_svg(card)
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GitHub Specimen // Ruby Dash</title>
+  <style>
+    * {{ box-sizing: border-box; margin: 0; padding: 0; }}
+    body {{ min-height: 100vh; display: grid; place-items: center; background: #0d1117; }}
+    .frame {{ width: 480px; height: 480px; }}
+  </style>
 </head>
 <body>
-    <div class="specimen-artwork">
-        <canvas id="gl-canvas"></canvas>
-        <div class="vignette-overlay"></div>
-        <div class="specimen-data">
-            <div class="header-left">
-                <div class="label-bracket">IDENTIFIER</div>
-                <div class="mono-value">__USERNAME__</div>
-                <div class="mono-tiny">TEMPORAL DENSITY ANALYSIS</div>
-                <div class="mono-tiny">PERIOD: __PERIOD__</div>
-            </div>
-            <div class="header-right">
-                <div class="label-bracket">VOLUMETRICS</div>
-                <div class="mono-tiny">PEAK VELOCITY</div>
-                <div class="serif-display" style="font-size: 2rem; margin-top: -2px;">__PEAK_VEL__</div>
-            </div>
-            <div class="center-display">
-                <div class="crosshair"></div>
-                <div class="mono-tiny" style="margin-bottom: 12px; letter-spacing: 0.3em;">// ANNUAL ACTIVITY MATRIX</div>
-                <div class="heatmap-container" id="heatmap-grid"></div>
-                <div class="heatmap-legend">
-                    <span class="mono-tiny">LESS</span>
-                    <div class="cell" style="width:8px; height:8px;"></div>
-                    <div class="cell level-1" style="width:8px; height:8px;"></div>
-                    <div class="cell level-2" style="width:8px; height:8px;"></div>
-                    <div class="cell level-3" style="width:8px; height:8px;"></div>
-                    <div class="cell level-4" style="width:8px; height:8px;"></div>
-                    <span class="mono-tiny">MORE</span>
-                </div>
-            </div>
-            <div class="bottom-left">
-                <div class="mono-tiny">CONSISTENCY RATING</div>
-                <div class="data-group">
-                    <div class="serif-display" style="font-size: 1.2rem;">__CONS_LABEL__ <span class="mono-tiny" style="vertical-align: middle;">[ __CONS_SCORE__ ]</span></div>
-                </div>
-                <div class="fraction-line"></div>
-                <div class="mono-tiny">__STREAK__</div>
-            </div>
-            <div class="bottom-right">
-                <div class="mono-tiny">TEMPORAL BIAS</div>
-                <div class="data-group">
-                    <div class="serif-display" style="font-size: 1.2rem;">__BIAS__</div>
-                </div>
-                <div class="fraction-line"></div>
-                <div class="mono-tiny">__CLOCK__</div>
-            </div>
-        </div>
-    </div>
-    <script>
-        const cellData = __CELL_DATA__;
-        const grid = document.getElementById('heatmap-grid');
-        if (cellData) {
-            for (let i = 0; i < cellData.length; i++) {
-                const level = cellData[i];
-                const cell = document.createElement('div');
-                cell.className = 'cell';
-                if (level < 0) { cell.style.visibility = 'hidden'; }
-                else if (level >= 1) { cell.classList.add('level-' + level); }
-                grid.appendChild(cell);
-            }
-        } else {
-            for (let i = 0; i < 26 * 7; i++) {
-                const cell = document.createElement('div');
-                cell.className = 'cell';
-                const rand = Math.random();
-                if (rand > 0.92) cell.classList.add('level-4');
-                else if (rand > 0.75) cell.classList.add('level-3');
-                else if (rand > 0.5) cell.classList.add('level-2');
-                else if (rand > 0.25) cell.classList.add('level-1');
-                grid.appendChild(cell);
-            }
-        }
-        const canvas = document.getElementById('gl-canvas');
-        const gl = canvas.getContext('webgl');
-        const vsSource = `attribute vec4 aVertexPosition; void main() { gl_Position = aVertexPosition; }`;
-        const fsSource = `
-            precision highp float;
-            uniform vec2 u_resolution;
-            uniform float u_time;
-            float random (in vec2 st) { return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123); }
-            float noise (in vec2 st) {
-                vec2 i = floor(st); vec2 f = fract(st);
-                float a = random(i); float b = random(i + vec2(1.0, 0.0));
-                float c = random(i + vec2(0.0, 1.0)); float d = random(i + vec2(1.0, 1.0));
-                vec2 u = f*f*(3.0-2.0*f);
-                return mix(a, b, u.x) + (c - a)* u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
-            }
-            #define OCTAVES 5
-            float fbm (in vec2 st) {
-                float value = 0.0; float amplitude = .5;
-                mat2 rot = mat2(cos(0.5), sin(0.5), -sin(0.5), cos(0.50));
-                for (int i = 0; i < OCTAVES; i++) {
-                    value += amplitude * noise(st);
-                    st = rot * st * 2.0 + vec2(100.0);
-                    amplitude *= .5;
-                }
-                return value;
-            }
-            void main() {
-                vec2 st = gl_FragCoord.xy/u_resolution.xy;
-                vec2 p = st * 2.0 - 1.0;
-                vec2 q = vec2(fbm(p + 0.05 * u_time), fbm(p + vec2(1.0)));
-                vec2 r = vec2(fbm(p + 1.5 * q + 0.15 * u_time), fbm(p + 1.5 * q + 0.126 * u_time));
-                float f = fbm(p + r);
-                vec3 col0 = vec3(0.051, 0.067, 0.090);
-                vec3 col2 = vec3(0.533, 0.243, 0.263);
-                vec3 col3 = vec3(0.769, 0.478, 0.498);
-                vec3 color = mix(col0, col2, clamp(length(q)*1.2, 0.0, 1.0));
-                color = mix(color, col3, clamp(length(r.x)*0.8, 0.0, 1.0));
-                color += (random(st * (u_time * 0.1 + 1.0)) - 0.5) * 0.08;
-                gl_FragColor = vec4(mix(col0, color, smoothstep(1.2, 0.4, max(abs(p.x), abs(p.y)))), 1.0);
-            }
-        `;
-        function initShader(gl, vs, fs) {
-            const s = (t, src) => { const sh = gl.createShader(t); gl.shaderSource(sh, src); gl.compileShader(sh); return sh; };
-            const p = gl.createProgram(); gl.attachShader(p, s(gl.VERTEX_SHADER, vs)); gl.attachShader(p, s(gl.FRAGMENT_SHADER, fs));
-            gl.linkProgram(p); return p;
-        }
-        const program = initShader(gl, vsSource, fsSource);
-        const posLoc = gl.getAttribLocation(program, 'aVertexPosition');
-        const resLoc = gl.getUniformLocation(program, 'u_resolution');
-        const timeLoc = gl.getUniformLocation(program, 'u_time');
-        const buf = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([1,1,-1,1,1,-1,-1,-1]), gl.STATIC_DRAW);
-        function render(now) {
-            canvas.width = canvas.clientWidth; canvas.height = canvas.clientHeight;
-            gl.viewport(0, 0, canvas.width, canvas.height);
-            gl.useProgram(program);
-            gl.enableVertexAttribArray(posLoc);
-            gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
-            gl.uniform2f(resLoc, canvas.width, canvas.height);
-            gl.uniform1f(timeLoc, now * 0.0004);
-            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-            requestAnimationFrame(render);
-        }
-        requestAnimationFrame(render);
-    </script>
-</body></html>
-"""
-    html = html.replace("__USERNAME__", username_display)
-    html = html.replace("__PERIOD__", period_str)
-    html = html.replace("__PEAK_VEL__", peak_vel)
-    html = html.replace("__CONS_LABEL__", cons_label)
-    html = html.replace("__CONS_SCORE__", cons_score)
-    html = html.replace("__STREAK__", streak_str)
-    html = html.replace("__BIAS__", bias_str)
-    html = html.replace("__CLOCK__", clock_str)
-    html = html.replace("__CELL_DATA__", cell_data_js)
-    return html
+  <div class="frame">{svg}</div>
+</body>
+</html>"""
 
 
 def busiest_day(commits: list[CommitRecord], window_end: datetime, window_days: int) -> tuple[date, RepoStats] | None:
@@ -1459,13 +1481,13 @@ def render_stats(
     average_active_day = round(total_changed / active_days) if active_days else 0
     updated_at = now_utc().strftime("%Y-%m-%d %H:%M UTC")
     net_delta = total_additions - total_deletions
-    gif_reference = "./assets/activity-card.gif"
+    image_reference = "./assets/activity-card.svg"
 
     lines = [
         "## Activity Dashboard",
         "",
         '<p align="center">',
-        f'  <img src="{gif_reference}" alt="Temporal activity dashboard card" width="100%" />',
+        f'  <img src="{image_reference}" alt="Temporal activity dashboard card" width="100%" />',
         "</p>",
         "",
     ]
@@ -1578,31 +1600,35 @@ def main() -> int:
     require_token_in_actions()
     username = infer_username()
     window_days = env_int("PROFILE_STATS_WINDOW_DAYS", 7)
-    temporal_weeks = env_int("PROFILE_STATS_TEMPORAL_WEEKS", 26)
+    commit_metric_days = 14
+    card_weeks = env_int("PROFILE_STATS_CARD_WEEKS", 22)
     window_end = now_utc()
     window_start = start_of_utc_day(window_end.date() - timedelta(days=window_days - 1))
-    temporal_window_start = start_of_utc_day(window_end.date() - timedelta(days=(temporal_weeks * 7) - 1))
+    commit_metric_start = start_of_utc_day(window_end.date() - timedelta(days=commit_metric_days - 1))
+    card_window_start = start_of_utc_day(window_end.date() - timedelta(days=(card_weeks * 7) - 1))
 
     collected = collect_stats(username, window_start, window_end)
-    temporal_commits, temporal_warnings = collect_temporal_commits(username, temporal_window_start, window_end)
-    all_warnings = [*collected.warnings, *temporal_warnings]
+    fortnight_collected = collect_stats(username, commit_metric_start, window_end)
+    temporal_commits, temporal_warnings = collect_temporal_commits(username, card_window_start, window_end)
+    all_warnings = [*collected.warnings, *fortnight_collected.warnings, *temporal_warnings]
     if all_warnings:
         preview = "\n".join(all_warnings[:5])
         print(f"Skipped some repositories:\n{preview}", file=sys.stderr)
 
     block = render_stats(username, window_start, window_end, window_days, collected)
-    weekly_summary = build_weekly_summary(collected, window_days)
-    temporal_metrics = build_temporal_metrics(temporal_commits, window_end, temporal_weeks)
-    activity_gif = render_activity_gif(username, temporal_metrics, weekly_summary)
-    activity_preview = render_activity_preview(username, temporal_metrics)
+    fortnight_summary = build_weekly_summary(fortnight_collected, commit_metric_days)
+    temporal_metrics = build_temporal_metrics(temporal_commits, window_end, card_weeks)
+    card = build_dashboard_card(username, fortnight_summary, fortnight_collected, temporal_metrics)
+    activity_svg = render_activity_svg(card)
+    activity_preview = render_activity_preview(card)
 
     if os.getenv("PROFILE_STATS_DRY_RUN", "").strip() == "1":
         print(block)
         return 0
 
-    GIF_PATH.parent.mkdir(parents=True, exist_ok=True)
+    SVG_PATH.parent.mkdir(parents=True, exist_ok=True)
     HTML_PREVIEW_PATH.parent.mkdir(parents=True, exist_ok=True)
-    GIF_PATH.write_bytes(activity_gif)
+    SVG_PATH.write_text(activity_svg, encoding="utf-8")
     HTML_PREVIEW_PATH.write_text(activity_preview, encoding="utf-8")
     if args.update_readme:
         if not README_PATH.exists():

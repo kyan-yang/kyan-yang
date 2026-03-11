@@ -1,17 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GitHub Specimen // Ruby Dash</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { min-height: 100vh; display: grid; place-items: center; background: #0d1117; }
-    .frame { width: 480px; height: 480px; }
-  </style>
-</head>
-<body>
-  <div class="frame"><svg width="480" height="480" viewBox="0 0 480 480" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="GitHub activity dashboard">
+<svg width="480" height="480" viewBox="0 0 480 480" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="GitHub activity dashboard">
   <defs>
     <radialGradient id="rubyGlowA" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(192 264) rotate(90) scale(150 190)">
       <stop stop-color="#883E43" stop-opacity="0.45"/>
@@ -86,6 +73,3 @@
   <text x="324" y="428" class="mono tiny">REPOSITORIES</text>
   <text x="324" y="449" class="mono small" font-weight="700">6 REPOS</text>
 </svg>
-</div>
-</body>
-</html>
