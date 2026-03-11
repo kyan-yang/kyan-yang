@@ -105,13 +105,13 @@ def render_activity_svg(card: DashboardCardData | None = None) -> str:
         end = offset + (share * math.tau)
         if share > 0:
             donut_paths.append(
-                f'<path d="{arc_path(cx, cy, radius, start, end)}" fill="none" stroke="{color}" stroke-width="17" stroke-linecap="butt"></path>'
+                f'<path d="{arc_path(cx, cy, radius, start, end)}" fill="none" stroke="{color}" stroke-width="21" stroke-linecap="butt"></path>'
             )
         label_y = 124 + index * 18
         legend_rows.append(
-            f'<circle cx="326" cy="{label_y}" r="4" fill="{color}"></circle>'
-            f'<text x="337" y="{label_y + 2}" class="legend-label">{xml_escape(language[:11])}</text>'
-            f'<text x="441" y="{label_y + 2}" class="legend-value">{format_percent(share * 100)}</text>'
+            f'<circle cx="341" cy="{label_y}" r="4" fill="{color}"></circle>'
+            f'<text x="352" y="{label_y + 2}" class="legend-label">{xml_escape(language[:11])}</text>'
+            f'<text x="456" y="{label_y + 2}" class="legend-value">{format_percent(share * 100)}</text>'
         )
         offset = end
 
@@ -160,12 +160,10 @@ def render_activity_svg(card: DashboardCardData | None = None) -> str:
   <text x="122" y="206" class="mono tiny" text-anchor="middle" letter-spacing="3.2px">COMMITS</text>
 
   <line x1="195.5" y1="102" x2="195.5" y2="211" stroke="rgba(240, 221, 216, 0.12)"/>
-  <circle cx="{cx}" cy="{cy}" r="{radius}" stroke="rgba(240, 221, 216, 0.08)" stroke-width="17"/>
+  <circle cx="{cx}" cy="{cy}" r="{radius}" stroke="rgba(240, 221, 216, 0.08)" stroke-width="21"/>
   {''.join(donut_paths)}
-  <circle cx="{cx}" cy="{cy}" r="22" fill="#0D1117"/>
-  <text x="{cx}" y="{cy - 4}" class="mono" font-size="10" text-anchor="middle">LANG</text>
-  <text x="{cx}" y="{cy + 13}" class="mono tiny" text-anchor="middle">{len(card.language_segments)} MIX</text>
-  <text x="326" y="110" class="mono tiny">LANGUAGE</text>
+  <circle cx="{cx}" cy="{cy}" r="17" fill="#0D1117"/>
+  <text x="352" y="110" class="mono tiny">LANGUAGE</text>
   {''.join(legend_rows)}
 
   {''.join(heatmap_cells)}
