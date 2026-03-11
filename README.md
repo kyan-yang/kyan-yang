@@ -1,8 +1,9 @@
 <div align="center">
-
-hey, i'm kyan
+hey, i'm kyan (kye - an)
+<br />
 <br />
 currently studying cs+math @ stanford, scouting @ afore capital, and automating as much of the tasks i can in my daily life.
+<br />
 </div>
 
 <!-- profile-stats:start -->
