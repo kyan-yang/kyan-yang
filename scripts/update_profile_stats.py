@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import html
 import json
 import os
 import sys
@@ -16,6 +17,7 @@ from pathlib import Path
 
 API_ROOT = "https://api.github.com"
 README_PATH = Path(os.getenv("PROFILE_STATS_README", "README.md"))
+SVG_PATH = Path(os.getenv("PROFILE_STATS_SVG", "assets/activity-card.svg"))
 REQUEST_TIMEOUT_SECONDS = 30
 START_MARKER = "<!-- profile-stats:start -->"
 END_MARKER = "<!-- profile-stats:end -->"
@@ -78,7 +80,6 @@ DEFAULT_CODE_EXTENSIONS = {
     ".tf",
     ".tsx",
     ".ts",
-    ".tsx",
     ".vue",
     ".xml",
     ".yaml.tmpl",
@@ -174,6 +175,10 @@ def parse_iso8601(value: str | None) -> datetime | None:
 
 def format_int(value: int) -> str:
     return f"{value:,}"
+
+
+def format_percent(value: float) -> str:
+    return f"{value:.1f}%"
 
 
 def env_int(name: str, default: int) -> int:
@@ -329,6 +334,10 @@ def detect_language(path: str) -> str | None:
         ".zsh": "Shell",
     }
     return extension_map.get(extension)
+
+
+def xml_escape(value: str) -> str:
+    return html.escape(value, quote=True)
 
 
 def build_headers() -> dict[str, str]:
@@ -656,6 +665,110 @@ def render_daily_chart(commits: list[CommitRecord], window_end: datetime, window
     return "\n".join(lines)
 
 
+def top_languages(per_language: dict[str, RepoStats], limit: int = 8) -> list[tuple[str, RepoStats]]:
+    return sorted(
+        per_language.items(),
+        key=lambda item: (item[1].changed, item[1].additions, item[0]),
+        reverse=True,
+    )[:limit]
+
+
+def render_activity_card(window_days: int, collected: CollectedStats, window_end: datetime) -> str:
+    per_language = collected.per_language
+    commits = collected.commits
+    language_rows = top_languages(per_language)
+    total_changed = sum(stats.changed for stats in per_language.values())
+    total_commits = len(commits)
+    repo_count = len(collected.per_repo)
+    active_days = len({commit.committed_at.astimezone(timezone.utc).date() for commit in commits})
+    updated_label = window_end.strftime("%b %d, %Y")
+
+    width = 1120
+    row_height = 54
+    bar_width = 300
+    summary_y = 178
+    summary_height = 86
+    languages_start_y = 324
+    footer_height = 70
+    rows = max(len(language_rows), 1)
+    height = languages_start_y + (rows * row_height) + footer_height
+
+    svg: list[str] = [
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}" fill="none" role="img" aria-labelledby="title desc">',
+        "<title id=\"title\">Weekly code activity</title>",
+        "<desc id=\"desc\">Generated language breakdown and weekly code activity summary.</desc>",
+        "<defs>",
+        '<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">',
+        '<stop offset="0%" stop-color="#09111f"/>',
+        '<stop offset="100%" stop-color="#0f1f36"/>',
+        "</linearGradient>",
+        '<linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">',
+        '<stop offset="0%" stop-color="#71e5ff"/>',
+        '<stop offset="100%" stop-color="#5b8cff"/>',
+        "</linearGradient>",
+        "</defs>",
+        '<rect x="1" y="1" width="1118" height="{height_minus}" rx="28" fill="url(#bg)" stroke="#273449"/>'.replace(
+            "{height_minus}", str(height - 2)
+        ),
+        '<text x="52" y="60" fill="#8fa7c6" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="18">Generated from GitHub commits</text>',
+        '<text x="52" y="108" fill="#f5f7fb" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="42" font-weight="700">Weekly Code Activity</text>',
+        f'<text x="52" y="144" fill="#8fa7c6" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="20">Last {window_days} calendar days, including today • updated {xml_escape(updated_label)}</text>',
+    ]
+
+    summary = [
+        ("Code lines", format_int(total_changed)),
+        ("Commits", format_int(total_commits)),
+        ("Repos", format_int(repo_count)),
+        ("Active days", f"{active_days}/{window_days}"),
+    ]
+    metric_x = 52
+    for label, value in summary:
+        svg.extend(
+            [
+                f'<rect x="{metric_x}" y="{summary_y}" width="220" height="{summary_height}" rx="18" fill="#111c2f" stroke="#243349"/>',
+                f'<text x="{metric_x + 20}" y="{summary_y + 34}" fill="#8fa7c6" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="16">{xml_escape(label)}</text>',
+                f'<text x="{metric_x + 20}" y="{summary_y + 69}" fill="#f5f7fb" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="28" font-weight="700">{xml_escape(value)}</text>',
+            ]
+        )
+        metric_x += 240
+
+    if not language_rows:
+        empty_y = languages_start_y + 8
+        svg.extend(
+            [
+                f'<text x="52" y="{empty_y}" fill="#f5f7fb" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="28" font-weight="600">No code-file changes in this window.</text>',
+                f'<text x="52" y="{empty_y + 38}" fill="#8fa7c6" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="18">The card will populate after your next code commit.</text>',
+            ]
+        )
+    else:
+        start_y = languages_start_y
+        for index, (language, stats) in enumerate(language_rows):
+            y = start_y + (index * row_height)
+            share = (stats.changed / total_changed) if total_changed else 0
+            filled = max(8, round(bar_width * share))
+            if stats.changed == 0:
+                filled = 0
+
+            svg.extend(
+                [
+                    f'<text x="52" y="{y}" fill="#f5f7fb" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="24">{xml_escape(language)}</text>',
+                    f'<text x="330" y="{y}" fill="#d6dfeb" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="24">{xml_escape(format_int(stats.changed))} lines</text>',
+                    f'<rect x="610" y="{y - 22}" width="{bar_width}" height="18" rx="9" fill="#1d2b41"/>',
+                    f'<rect x="610" y="{y - 22}" width="{filled}" height="18" rx="9" fill="url(#accent)"/>',
+                    f'<text x="940" y="{y}" fill="#f5f7fb" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="24">{xml_escape(format_percent(share * 100))}</text>',
+                ]
+            )
+
+    footer_y = height - 28
+    svg.extend(
+        [
+            f'<text x="52" y="{footer_y}" fill="#6f87a7" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="16">Only code files are counted. Language detection is inferred from changed filenames and extensions.</text>',
+            "</svg>",
+        ]
+    )
+    return "\n".join(svg)
+
+
 def busiest_day(commits: list[CommitRecord], window_end: datetime, window_days: int) -> tuple[date, RepoStats] | None:
     rows = daily_rollup(commits, window_end, window_days)
     active_rows = [(day, stats) for day, stats in rows if stats.commits]
@@ -678,7 +791,6 @@ def render_stats(
     collected: CollectedStats,
 ) -> str:
     per_repo = collected.per_repo
-    per_language = collected.per_language
     commits = collected.commits
     total_additions = sum(repo.additions for repo in per_repo.values())
     total_deletions = sum(repo.deletions for repo in per_repo.values())
@@ -691,20 +803,25 @@ def render_stats(
     updated_at = now_utc().strftime("%Y-%m-%d %H:%M UTC")
     net_delta = total_additions - total_deletions
     coverage_note = render_coverage_note()
+    svg_reference = "./assets/activity-card.svg"
 
     lines = [
         "## Activity Dashboard",
         "",
-        f"> Rolling window: the last {window_days} calendar day{'s' if window_days != 1 else ''}, including today.",
+        '<p align="center">',
+        f'  <img src="{svg_reference}" alt="Weekly code activity card" width="100%" />',
+        "</p>",
         "",
-        f"<sub>Updated {updated_at}</sub>",
+        f"> Rolling window: the last {window_days} calendar day{'s' if window_days != 1 else ''}, including today.",
         "",
     ]
 
     if total_commits == 0:
         lines.extend(
             [
-                f"No commits found for `{username}` between {window_start.date()} and {window_end.date()}.",
+                f"<sub>Updated {updated_at}</sub>",
+                "",
+                f"No code-file commits found for `{username}` between {window_start.date()} and {window_end.date()}.",
                 "",
                 f"> {coverage_note}",
             ]
@@ -713,17 +830,19 @@ def render_stats(
 
     lines.extend(
         [
-            "| Metric | Value |",
-            "| --- | ---: |",
-            f"| Code lines changed | {format_int(total_changed)} |",
-            f"| Added | +{format_int(total_additions)} |",
-            f"| Deleted | -{format_int(total_deletions)} |",
-            f"| Net delta | {'+' if net_delta >= 0 else '-'}{format_int(abs(net_delta))} |",
-            f"| Code-touching commits | {format_int(total_commits)} |",
-            f"| Repositories touched | {format_int(repo_count)} |",
-            f"| Active days | {format_int(active_days)} / {format_int(window_days)} |",
-            f"| Average code lines per commit | {format_int(average_changed)} |",
-            f"| Average code lines per active day | {format_int(average_active_day)} |",
+            "<details>",
+            "<summary>Open raw weekly breakdown</summary>",
+            "",
+            f"<sub>Updated {updated_at}</sub>",
+            "",
+            f"- Added: +{format_int(total_additions)}",
+            f"- Deleted: -{format_int(total_deletions)}",
+            f"- Net delta: {'+' if net_delta >= 0 else '-'}{format_int(abs(net_delta))}",
+            f"- Code-touching commits: {format_int(total_commits)}",
+            f"- Repositories touched: {format_int(repo_count)}",
+            f"- Active days: {format_int(active_days)} / {format_int(window_days)}",
+            f"- Average code lines per commit: {format_int(average_changed)}",
+            f"- Average code lines per active day: {format_int(average_active_day)}",
             "",
             "### Daily Throughput",
             "",
@@ -754,32 +873,8 @@ def render_stats(
         key=lambda item: (item[1].changed, item[1].commits, item[0]),
         reverse=True,
     )[:5]
-    top_languages = sorted(
-        per_language.items(),
-        key=lambda item: (item[1].changed, item[1].additions, item[0]),
-        reverse=True,
-    )[:8]
-
     lines.extend(
         [
-            "",
-            "### Language Breakdown",
-            "",
-            "| Language | Code lines | Share | Added | Deleted |",
-            "| --- | ---: | ---: | ---: | ---: |",
-        ]
-    )
-
-    for language, stats in top_languages:
-        share = (stats.changed / total_changed) * 100 if total_changed else 0
-        lines.append(
-            f"| {language} | {format_int(stats.changed)} | {share:.1f}% | +{format_int(stats.additions)} | -{format_int(stats.deletions)} |"
-        )
-
-    lines.extend(
-        [
-            "",
-            "> Language detection is inferred from changed filenames and extensions.",
             "",
             "### Top Repositories",
             "",
@@ -793,7 +888,16 @@ def render_stats(
             f"| `{full_name}` | {format_int(stats.changed)} | +{format_int(stats.additions)} | -{format_int(stats.deletions)} | {format_int(stats.commits)} |"
         )
 
-    lines.extend(["", f"> {coverage_note}"])
+    lines.extend(
+        [
+            "",
+            "> Language detection is inferred from changed filenames and extensions.",
+            "",
+            f"> {coverage_note}",
+            "",
+            "</details>",
+        ]
+    )
     return "\n".join(lines)
 
 
@@ -821,6 +925,7 @@ def main() -> int:
         print(f"Skipped some repositories:\n{preview}", file=sys.stderr)
 
     block = render_stats(username, window_start, window_end, window_days, collected)
+    activity_card = render_activity_card(window_days, collected, window_end)
 
     if os.getenv("PROFILE_STATS_DRY_RUN", "").strip() == "1":
         print(block)
@@ -831,6 +936,8 @@ def main() -> int:
 
     current = README_PATH.read_text(encoding="utf-8")
     updated = replace_stats_block(current, block)
+    SVG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    SVG_PATH.write_text(activity_card, encoding="utf-8")
     README_PATH.write_text(updated, encoding="utf-8")
     return 0
 

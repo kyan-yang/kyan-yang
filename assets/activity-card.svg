@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="448" viewBox="0 0 1120 448" fill="none" role="img" aria-labelledby="title desc">
+<title id="title">Weekly code activity</title>
+<desc id="desc">Generated language breakdown and weekly code activity summary.</desc>
+<defs>
+<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+<stop offset="0%" stop-color="#09111f"/>
+<stop offset="100%" stop-color="#0f1f36"/>
+</linearGradient>
+<linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+<stop offset="0%" stop-color="#71e5ff"/>
+<stop offset="100%" stop-color="#5b8cff"/>
+</linearGradient>
+</defs>
+<rect x="1" y="1" width="1118" height="446" rx="28" fill="url(#bg)" stroke="#273449"/>
+<text x="52" y="60" fill="#8fa7c6" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="18">Generated from GitHub commits</text>
+<text x="52" y="108" fill="#f5f7fb" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="42" font-weight="700">Weekly Code Activity</text>
+<text x="52" y="144" fill="#8fa7c6" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="20">Last 7 calendar days, including today • updated Mar 11, 2026</text>
+<rect x="52" y="178" width="220" height="86" rx="18" fill="#111c2f" stroke="#243349"/>
+<text x="72" y="212" fill="#8fa7c6" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="16">Code lines</text>
+<text x="72" y="247" fill="#f5f7fb" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="28" font-weight="700">648</text>
+<rect x="292" y="178" width="220" height="86" rx="18" fill="#111c2f" stroke="#243349"/>
+<text x="312" y="212" fill="#8fa7c6" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="16">Commits</text>
+<text x="312" y="247" fill="#f5f7fb" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="28" font-weight="700">2</text>
+<rect x="532" y="178" width="220" height="86" rx="18" fill="#111c2f" stroke="#243349"/>
+<text x="552" y="212" fill="#8fa7c6" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="16">Repos</text>
+<text x="552" y="247" fill="#f5f7fb" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="28" font-weight="700">1</text>
+<rect x="772" y="178" width="220" height="86" rx="18" fill="#111c2f" stroke="#243349"/>
+<text x="792" y="212" fill="#8fa7c6" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="16">Active days</text>
+<text x="792" y="247" fill="#f5f7fb" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="28" font-weight="700">1/7</text>
+<text x="52" y="324" fill="#f5f7fb" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="24">Python</text>
+<text x="330" y="324" fill="#d6dfeb" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="24">648 lines</text>
+<rect x="610" y="302" width="300" height="18" rx="9" fill="#1d2b41"/>
+<rect x="610" y="302" width="300" height="18" rx="9" fill="url(#accent)"/>
+<text x="940" y="324" fill="#f5f7fb" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="24">100.0%</text>
+<text x="52" y="420" fill="#6f87a7" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="16">Only code files are counted. Language detection is inferred from changed filenames and extensions.</text>
+</svg>

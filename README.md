@@ -1,65 +1,69 @@
 <div align="center">
 
-# Building In Public
+# hey, i'm kyan
 
-A live weekly snapshot of recent engineering activity, refreshed automatically from the GitHub API.
+Code, experiments, and a weekly snapshot of shipped work generated straight from GitHub.
 
 </div>
 
 <!-- profile-stats:start -->
 ## Activity Dashboard
 
+<p align="center">
+  <img src="./assets/activity-card.svg" alt="Weekly code activity card" width="100%" />
+</p>
+
 > Rolling window: the last 7 calendar days, including today.
 
-<sub>Updated 2026-03-11 02:57 UTC</sub>
+<details>
+<summary>Open raw weekly breakdown</summary>
 
-| Metric | Value |
-| --- | ---: |
-| Lines changed | 84,724 |
-| Added | +29,383 |
-| Deleted | -55,341 |
-| Net delta | -25,958 |
-| Commits | 75 |
-| Repositories touched | 5 |
-| Active days | 6 / 7 |
-| Average lines per commit | 1,130 |
-| Average lines per active day | 14,121 |
+<sub>Updated 2026-03-11 03:10 UTC</sub>
+
+- Added: +600
+- Deleted: -48
+- Net delta: +552
+- Code-touching commits: 2
+- Repositories touched: 1
+- Active days: 1 / 7
+- Average code lines per commit: 324
+- Average code lines per active day: 648
 
 ### Daily Throughput
 
 ```text
-03-05 | #                       38 lines | 1 commit
-03-06 | ##################  52,979 lines | 11 commits
-03-07 | ####                13,190 lines | 22 commits
-03-08 | .                        0 lines | 0 commits
-03-09 | ###                 10,172 lines | 17 commits
-03-10 | ##                   6,711 lines | 14 commits
-03-11 | #                    1,634 lines | 10 commits
+03-05 | .                        0 code lines | 0 commits
+03-06 | .                        0 code lines | 0 commits
+03-07 | .                        0 code lines | 0 commits
+03-08 | .                        0 code lines | 0 commits
+03-09 | .                        0 code lines | 0 commits
+03-10 | .                        0 code lines | 0 commits
+03-11 | ##################     648 code lines | 2 commits
 ```
 
 ### Highlights
 
-- Busiest day: `2026-03-06` with 52,979 lines changed across 11 commits
-- Largest commit: `kyan-yang/instagram-scripts@ef982a2` with +444 / -47,581
+- Busiest day: `2026-03-11` with 648 code lines changed across 2 commits
+- Largest commit: `kyan-yang/kyan-yang@3dae7b8` with +378 / -0
 
 ### Top Repositories
 
-| Repository | Lines | Added | Deleted | Commits |
+| Repository | Code lines | Added | Deleted | Commits |
 | --- | ---: | ---: | ---: | ---: |
-| `kyan-yang/instagram-scripts` | 52,965 | +3,284 | -49,681 | 6 |
-| `kyan-yang/good-learn` | 17,808 | +13,770 | -4,038 | 37 |
-| `kyan-yang/essay-reviser` | 12,669 | +11,106 | -1,563 | 20 |
-| `kyan-yang/kyan-yang` | 743 | +690 | -53 | 3 |
-| `kyan-yang/kyanyang.com` | 539 | +533 | -6 | 9 |
+| `kyan-yang/kyan-yang` | 648 | +600 | -48 | 2 |
 
-> Coverage includes public repositories plus any additional repositories the workflow token can read.
+> Language detection is inferred from changed filenames and extensions.
+
+> Coverage is limited to code-file changes in public activity. Add PROFILE_STATS_TOKEN to include private and collaborator repositories.
+
+</details>
 <!-- profile-stats:end -->
 
 <details>
 <summary>How this profile works</summary>
 
 - A GitHub Actions workflow refreshes this dashboard every day.
-- The updater script totals code-only additions, deletions, commits, active days, a language breakdown, and the repositories touched most recently.
+- The updater script counts code-only additions, deletions, commits, active days, languages, and the repositories touched most recently.
 - Private repositories are included when the workflow can read them through `PROFILE_STATS_TOKEN`.
 
 </details>
