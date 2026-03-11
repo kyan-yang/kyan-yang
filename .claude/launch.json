@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "preview",
+      "runtimeExecutable": "/opt/homebrew/bin/npx",
+      "runtimeArgs": ["serve", "/Users/kyan/Documents/Code/github-stuff/assets", "-l", "8080", "--no-clipboard"],
+      "port": 8080
+    }
+  ]
+}

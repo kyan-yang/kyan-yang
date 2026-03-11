@@ -975,11 +975,13 @@ def render_activity_frame(username: str, metrics: TemporalMetrics, summary: Week
     scale = size / 480.0
     background = Image.new("RGBA", (size, size), (13, 17, 23, 255))
     draw = ImageDraw.Draw(background)
+    mono_bracket = load_font("mono", int(8 * scale))
     mono_small = load_font("mono", int(9 * scale))
     mono_body = load_font("mono", int(11 * scale))
-    serif_big = load_font("serif", int(34 * scale))
-    serif_mid = load_font("serif", int(20 * scale))
+    serif_big = load_font("serif", int(32 * scale))
+    serif_mid = load_font("serif", int(19 * scale))
     phase = (frame_index / frame_count) * math.tau
+    pad = 24 * scale
 
     glow = Image.new("RGBA", (size, size), (0, 0, 0, 0))
     glow_draw = ImageDraw.Draw(glow)
@@ -993,21 +995,53 @@ def render_activity_frame(username: str, metrics: TemporalMetrics, summary: Week
     glow = glow.filter(ImageFilter.GaussianBlur(radius=max(12, int(20 * scale))))
     background.alpha_composite(glow)
 
-    draw.rectangle((24 * scale, 24 * scale, size - 24 * scale, size - 24 * scale), outline=(27, 34, 44, 255), width=max(1, int(scale)))
-    draw.line((size / 2, 80 * scale, size / 2, 148 * scale), fill=(240, 221, 216, 28), width=1)
+    # Vignette overlay (radial gradient: transparent center, opaque edges)
+    vignette_mask = Image.new("L", (size, size), 0)
+    v_draw = ImageDraw.Draw(vignette_mask)
+    vcx, vcy = size // 2, size // 2
+    max_r = int(math.sqrt(vcx ** 2 + vcy ** 2))
+    v_steps = 60
+    for vi in range(v_steps, 0, -1):
+        vr = int(max_r * vi / v_steps)
+        progress = vi / v_steps
+        valpha = 0 if progress <= 0.2 else int(255 * ((progress - 0.2) / 0.8))
+        v_draw.ellipse((vcx - vr, vcy - vr, vcx + vr, vcy + vr), fill=valpha)
+    vignette_layer = Image.new("RGBA", (size, size), (13, 17, 23, 0))
+    vignette_layer.putalpha(vignette_mask)
+    background.alpha_composite(vignette_layer)
 
-    # Header text
-    left_x = 48 * scale
-    right_x = size - 48 * scale
-    top_y = 56 * scale
-    draw_text(draw, left_x, top_y, username, font=serif_big, fill=(240, 221, 216, 255))
-    period = f"{metrics.start_day.strftime('%Y.%m.%d')} \u2014 {metrics.end_day.strftime('%Y.%m.%d')}"
-    draw_text(draw, left_x, top_y + 38 * scale, period, font=mono_small, fill=(240, 221, 216, 128), tracking=max(0, int(scale)))
-    draw_text(draw, left_x, top_y + 52 * scale, f"7D DELTA: {format_signed_int(summary.net_delta)}", font=mono_small, fill=(240, 221, 216, 128), tracking=max(0, int(scale)))
+    # Helper: draw a bordered bracket label
+    def draw_bracket(bx, by, blabel, balign="left"):
+        btracking = max(0, int(1.5 * scale))
+        btw = text_width(draw, blabel, mono_bracket, btracking)
+        bpx, bpy = 6 * scale, 2 * scale
+        bbw = btw + bpx * 2
+        bbh = int(8 * scale + bpy * 2)
+        box_x = bx - bbw if balign == "right" else bx
+        draw.rectangle((box_x, by, box_x + bbw, by + bbh), outline=(240, 221, 216, 30), width=1)
+        draw_text(draw, box_x + bpx, by + bpy, blabel, font=mono_bracket, fill=(240, 221, 216, 128), tracking=btracking)
+        return bbh
 
-    draw_text(draw, right_x, top_y + 2 * scale, f"{format_int(summary.total_changed)}", font=serif_big, fill=(240, 221, 216, 255), align="right")
-    draw_text(draw, right_x, top_y + 38 * scale, "CODE LINES", font=mono_small, fill=(240, 221, 216, 128), tracking=max(0, int(scale)), align="right")
-    draw_text(draw, right_x, top_y + 52 * scale, f"+{format_int(summary.total_additions)} / -{format_int(summary.total_deletions)}", font=mono_small, fill=(240, 221, 216, 128), tracking=max(0, int(scale)), align="right")
+    # Header Left
+    hx = pad
+    hy = pad
+    bh = draw_bracket(hx, hy, "IDENTIFIER")
+    hy += bh + 6 * scale
+    draw_text(draw, hx, hy, username.upper().replace("-", "_"), font=mono_body, fill=(240, 221, 216, 255), tracking=max(0, int(scale)))
+    hy += 14 * scale
+    draw_text(draw, hx, hy, "TEMPORAL DENSITY ANALYSIS", font=mono_small, fill=(240, 221, 216, 128), tracking=max(0, int(scale)))
+    hy += 12 * scale
+    period = f"PERIOD: {metrics.start_day.strftime('%Y.%m')} - {metrics.end_day.strftime('%Y.%m')}"
+    draw_text(draw, hx, hy, period, font=mono_small, fill=(240, 221, 216, 128), tracking=max(0, int(scale)))
+
+    # Header Right
+    rx = size - pad
+    ry = pad
+    bh = draw_bracket(rx, ry, "VOLUMETRICS", balign="right")
+    ry += bh + 6 * scale
+    draw_text(draw, rx, ry, "PEAK VELOCITY", font=mono_small, fill=(240, 221, 216, 128), tracking=max(0, int(scale)), align="right")
+    ry += 10 * scale
+    draw_text(draw, rx, ry, f"{metrics.peak_velocity}/wk", font=serif_big, fill=(240, 221, 216, 255), align="right")
 
     # Heatmap panel — sized to contain 26×7 grid with 10px padding
     cell_size = 12 * scale
@@ -1034,8 +1068,8 @@ def render_activity_frame(username: str, metrics: TemporalMetrics, summary: Week
 
     # Crosshair behind heatmap
     cx, cy = size / 2, panel_y + panel_h / 2
-    draw.line((cx, panel_y - 24 * scale, cx, panel_y + panel_h + 12 * scale), fill=(240, 221, 216, 18), width=1)
-    draw.line((panel_x - 20 * scale, cy, panel_x + panel_w + 20 * scale, cy), fill=(240, 221, 216, 18), width=1)
+    draw.line((cx, panel_y - 24 * scale, cx, panel_y + panel_h + 12 * scale), fill=(240, 221, 216, 14), width=1)
+    draw.line((panel_x - 20 * scale, cy, panel_x + panel_w + 20 * scale, cy), fill=(240, 221, 216, 14), width=1)
 
     # Heatmap grid
     grid_x = panel_x + panel_pad
@@ -1068,20 +1102,28 @@ def render_activity_frame(username: str, metrics: TemporalMetrics, summary: Week
         lx += legend_cell + legend_gap
     draw_text(draw, lx + 2 * scale, legend_y, "MORE", font=mono_small, fill=(240, 221, 216, 128), tracking=max(0, int(scale)))
 
-    left_x = 35 * scale
-    right_x = size - 35 * scale
-    base_y = 358 * scale
-    draw.line((left_x, base_y - 4 * scale, left_x, base_y + 52 * scale), fill=(240, 221, 216, 32), width=1)
-    draw_text(draw, left_x + 10 * scale, base_y, f"{format_int(summary.total_changed)} lines", font=serif_mid, fill=(240, 221, 216, 255))
-    draw_text(draw, left_x + 10 * scale, base_y + 22 * scale, f"[ {format_signed_int(summary.net_delta)} net ]", font=mono_small, fill=(240, 221, 216, 128), tracking=max(0, int(scale)))
-    draw.line((left_x + 10 * scale, base_y + 38 * scale, left_x + 132 * scale, base_y + 38 * scale), fill=(240, 221, 216, 32), width=1)
-    draw_text(draw, left_x + 10 * scale, base_y + 48 * scale, f"+{format_int(summary.total_additions)} / -{format_int(summary.total_deletions)}", font=mono_small, fill=(240, 221, 216, 128), tracking=max(0, int(scale)))
+    # Bottom Left - Consistency Rating
+    bl_x = pad
+    bl_base = size - pad - 56 * scale
+    draw.line((bl_x, bl_base, bl_x, bl_base + 54 * scale), fill=(240, 221, 216, 30), width=1)
+    bx = bl_x + 10 * scale
+    draw_text(draw, bx, bl_base, "CONSISTENCY RATING", font=mono_small, fill=(240, 221, 216, 128), tracking=max(0, int(scale)))
+    label_text = f"{metrics.consistency_label} "
+    draw_text(draw, bx, bl_base + 16 * scale, label_text, font=serif_mid, fill=(240, 221, 216, 255))
+    lw = text_width(draw, label_text, serif_mid)
+    score_text = f"[ {metrics.consistency_score:.2f} ]"
+    draw_text(draw, bx + lw, bl_base + 20 * scale, score_text, font=mono_small, fill=(240, 221, 216, 128), tracking=max(0, int(scale)))
+    draw.line((bx, bl_base + 36 * scale, bx + 130 * scale, bl_base + 36 * scale), fill=(240, 221, 216, 30), width=1)
+    draw_text(draw, bx, bl_base + 42 * scale, f"STREAK: {metrics.streak_weeks} WEEKS", font=mono_small, fill=(240, 221, 216, 128), tracking=max(0, int(scale)))
 
-    draw.line((right_x, base_y - 4 * scale, right_x, base_y + 52 * scale), fill=(240, 221, 216, 32), width=1)
-    draw_text(draw, right_x - 10 * scale, base_y, f"{format_int(summary.total_commits)} commits", font=serif_mid, fill=(240, 221, 216, 255), align="right")
-    draw_text(draw, right_x - 10 * scale, base_y + 22 * scale, f"{format_int(summary.repo_count)} repos // {summary.active_days}/{summary.window_days} active", font=mono_small, fill=(240, 221, 216, 128), tracking=max(0, int(scale / 2)), align="right")
-    draw.line((right_x - 122 * scale, base_y + 38 * scale, right_x - 10 * scale, base_y + 38 * scale), fill=(240, 221, 216, 32), width=1)
-    draw_text(draw, right_x - 10 * scale, base_y + 48 * scale, f"{metrics.consistency_label} [{metrics.consistency_score:.2f}] // {metrics.temporal_bias}", font=mono_small, fill=(240, 221, 216, 128), tracking=max(0, int(scale / 2)), align="right")
+    # Bottom Right - Temporal Bias
+    br_x = size - pad
+    draw.line((br_x, bl_base, br_x, bl_base + 54 * scale), fill=(240, 221, 216, 30), width=1)
+    bx_r = br_x - 10 * scale
+    draw_text(draw, bx_r, bl_base, "TEMPORAL BIAS", font=mono_small, fill=(240, 221, 216, 128), tracking=max(0, int(scale)), align="right")
+    draw_text(draw, bx_r, bl_base + 16 * scale, metrics.temporal_bias, font=serif_mid, fill=(240, 221, 216, 255), align="right")
+    draw.line((bx_r - 130 * scale, bl_base + 36 * scale, bx_r, bl_base + 36 * scale), fill=(240, 221, 216, 30), width=1)
+    draw_text(draw, bx_r, bl_base + 42 * scale, metrics.observed_clock, font=mono_small, fill=(240, 221, 216, 128), tracking=max(0, int(scale)), align="right")
 
     noise = Image.effect_noise((size, size), 10.0).convert("L")
     noise_rgba = Image.new("RGBA", (size, size), (240, 221, 216, 0))
@@ -1102,25 +1144,220 @@ def render_activity_gif(username: str, metrics: TemporalMetrics, summary: Weekly
 
 def render_activity_preview() -> str:
     return """<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Temporal Activity Preview</title>
-  <style>
-    body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #0d1117; color: #f0ddd8; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
-    .frame { width: min(92vw, 680px); display: grid; gap: 14px; justify-items: center; }
-    img { width: 100%; height: auto; display: block; border: 1px solid rgba(240, 221, 216, 0.08); background: #0d1117; }
-    p { margin: 0; opacity: 0.7; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; }
-  </style>
+<html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Specimen // Temporal Activity</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-edge: #0d1117;
+            --text-cream: #F0DDD8;
+            --text-muted: rgba(240, 221, 216, 0.5);
+            --line-subtle: rgba(240, 221, 216, 0.12);
+            --ruby-glow: rgba(136, 62, 67, 0.6);
+            --ruby-dark: #3a1a1c;
+            --ruby-base: #883E43;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: var(--bg-edge);
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh;
+            font-family: 'Space Mono', monospace;
+            color: var(--text-cream);
+            -webkit-font-smoothing: antialiased;
+            overflow: hidden;
+        }
+        .specimen-artwork { position: relative; width: 480px; height: 480px; overflow: hidden; }
+        #gl-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; background: var(--bg-edge); }
+        .vignette-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2;
+            background: radial-gradient(circle at center, transparent 20%, var(--bg-edge) 100%);
+            pointer-events: none;
+        }
+        .specimen-data {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 3;
+            padding: 24px;
+            display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto 1fr auto;
+            pointer-events: none;
+        }
+        .mono-tiny {
+            font-family: 'Space Mono', monospace; font-size: 9px;
+            text-transform: uppercase; letter-spacing: 0.12em;
+            color: var(--text-muted); line-height: 1.4;
+        }
+        .mono-value {
+            font-family: 'Space Mono', monospace; font-size: 11px; font-weight: 700;
+            color: var(--text-cream); letter-spacing: 0.05em;
+        }
+        .serif-display { font-family: 'Cormorant Garamond', serif; color: var(--text-cream); line-height: 1; }
+        .header-left { grid-column: 1; grid-row: 1; display: flex; flex-direction: column; gap: 2px; }
+        .header-right { grid-column: 2; grid-row: 1; text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+        .label-bracket {
+            display: inline-block; border: 1px solid var(--line-subtle);
+            padding: 2px 6px; font-size: 8px; letter-spacing: 0.15em; margin-bottom: 6px;
+        }
+        .center-display {
+            grid-column: 1 / 3; grid-row: 2;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            position: relative;
+        }
+        .heatmap-container {
+            margin-top: 10px;
+            display: grid; grid-template-columns: repeat(26, 12px); grid-template-rows: repeat(7, 12px); gap: 3px;
+            padding: 10px; background: rgba(13, 17, 23, 0.4);
+            border: 1px solid var(--line-subtle);
+            backdrop-filter: blur(4px); box-shadow: 0 0 30px rgba(0,0,0,0.5);
+        }
+        .cell { width: 12px; height: 12px; background: var(--ruby-dark); border-radius: 1px; opacity: 0.8; }
+        .cell.level-1 { background: #5c262a; }
+        .cell.level-2 { background: #883e43; }
+        .cell.level-3 { background: #c47a7f; box-shadow: 0 0 4px var(--ruby-glow); }
+        .cell.level-4 { background: #f0ddd8; box-shadow: 0 0 8px rgba(240, 221, 216, 0.4); }
+        .heatmap-legend { margin-top: 12px; display: flex; align-items: center; gap: 8px; }
+        .crosshair {
+            position: absolute; width: 100%; height: 100%;
+            display: flex; justify-content: center; align-items: center;
+            z-index: -1; opacity: 0.2;
+        }
+        .crosshair::before { content: ''; position: absolute; width: 1px; height: 320px; background: var(--line-subtle); }
+        .crosshair::after { content: ''; position: absolute; width: 400px; height: 1px; background: var(--line-subtle); }
+        .bottom-left { grid-column: 1; grid-row: 3; align-self: end; border-left: 1px solid var(--line-subtle); padding-left: 10px; }
+        .bottom-right { grid-column: 2; grid-row: 3; align-self: end; text-align: right; border-right: 1px solid var(--line-subtle); padding-right: 10px; }
+        .data-group { margin-top: 12px; }
+        .fraction-line { width: 100%; height: 1px; background: var(--line-subtle); margin: 6px 0; }
+    </style>
 </head>
 <body>
-  <div class="frame">
-    <img src="./activity-card.gif" alt="Temporal activity card preview">
-    <p>GitHub README asset preview</p>
-  </div>
-</body>
-</html>
+    <div class="specimen-artwork">
+        <canvas id="gl-canvas"></canvas>
+        <div class="vignette-overlay"></div>
+        <div class="specimen-data">
+            <div class="header-left">
+                <div class="label-bracket">IDENTIFIER</div>
+                <div class="mono-value">PROFILE_IDX_04</div>
+                <div class="mono-tiny">TEMPORAL DENSITY ANALYSIS</div>
+                <div class="mono-tiny">PERIOD: 2023.10 - 2024.10</div>
+            </div>
+            <div class="header-right">
+                <div class="label-bracket">VOLUMETRICS</div>
+                <div class="mono-tiny">PEAK VELOCITY</div>
+                <div class="serif-display" style="font-size: 2rem; margin-top: -2px;">142/wk</div>
+            </div>
+            <div class="center-display">
+                <div class="crosshair"></div>
+                <div class="mono-tiny" style="margin-bottom: 12px; letter-spacing: 0.3em;">// ANNUAL ACTIVITY MATRIX</div>
+                <div class="heatmap-container" id="heatmap-grid"></div>
+                <div class="heatmap-legend">
+                    <span class="mono-tiny">LESS</span>
+                    <div class="cell" style="width:8px; height:8px;"></div>
+                    <div class="cell level-1" style="width:8px; height:8px;"></div>
+                    <div class="cell level-2" style="width:8px; height:8px;"></div>
+                    <div class="cell level-3" style="width:8px; height:8px;"></div>
+                    <div class="cell level-4" style="width:8px; height:8px;"></div>
+                    <span class="mono-tiny">MORE</span>
+                </div>
+            </div>
+            <div class="bottom-left">
+                <div class="mono-tiny">CONSISTENCY RATING</div>
+                <div class="data-group">
+                    <div class="serif-display" style="font-size: 1.2rem;">Alpha <span class="mono-tiny" style="vertical-align: middle;">[ 0.94 ]</span></div>
+                </div>
+                <div class="fraction-line"></div>
+                <div class="mono-tiny">STREAK: 42 WEEKS</div>
+            </div>
+            <div class="bottom-right">
+                <div class="mono-tiny">TEMPORAL BIAS</div>
+                <div class="data-group">
+                    <div class="serif-display" style="font-size: 1.2rem;">Nocturnal</div>
+                </div>
+                <div class="fraction-line"></div>
+                <div class="mono-tiny">UTC+2 OBSERVED</div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const grid = document.getElementById('heatmap-grid');
+        for (let i = 0; i < 26 * 7; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            const rand = Math.random();
+            if (rand > 0.92) cell.classList.add('level-4');
+            else if (rand > 0.75) cell.classList.add('level-3');
+            else if (rand > 0.5) cell.classList.add('level-2');
+            else if (rand > 0.25) cell.classList.add('level-1');
+            grid.appendChild(cell);
+        }
+        const canvas = document.getElementById('gl-canvas');
+        const gl = canvas.getContext('webgl');
+        const vsSource = `attribute vec4 aVertexPosition; void main() { gl_Position = aVertexPosition; }`;
+        const fsSource = `
+            precision highp float;
+            uniform vec2 u_resolution;
+            uniform float u_time;
+            float random (in vec2 st) { return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123); }
+            float noise (in vec2 st) {
+                vec2 i = floor(st); vec2 f = fract(st);
+                float a = random(i); float b = random(i + vec2(1.0, 0.0));
+                float c = random(i + vec2(0.0, 1.0)); float d = random(i + vec2(1.0, 1.0));
+                vec2 u = f*f*(3.0-2.0*f);
+                return mix(a, b, u.x) + (c - a)* u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
+            }
+            #define OCTAVES 5
+            float fbm (in vec2 st) {
+                float value = 0.0; float amplitude = .5;
+                mat2 rot = mat2(cos(0.5), sin(0.5), -sin(0.5), cos(0.50));
+                for (int i = 0; i < OCTAVES; i++) {
+                    value += amplitude * noise(st);
+                    st = rot * st * 2.0 + vec2(100.0);
+                    amplitude *= .5;
+                }
+                return value;
+            }
+            void main() {
+                vec2 st = gl_FragCoord.xy/u_resolution.xy;
+                vec2 p = st * 2.0 - 1.0;
+                vec2 q = vec2(fbm(p + 0.05 * u_time), fbm(p + vec2(1.0)));
+                vec2 r = vec2(fbm(p + 1.5 * q + 0.15 * u_time), fbm(p + 1.5 * q + 0.126 * u_time));
+                float f = fbm(p + r);
+                vec3 col0 = vec3(0.051, 0.067, 0.090);
+                vec3 col2 = vec3(0.533, 0.243, 0.263);
+                vec3 col3 = vec3(0.769, 0.478, 0.498);
+                vec3 color = mix(col0, col2, clamp(length(q)*1.2, 0.0, 1.0));
+                color = mix(color, col3, clamp(length(r.x)*0.8, 0.0, 1.0));
+                color += (random(st * (u_time * 0.1 + 1.0)) - 0.5) * 0.08;
+                gl_FragColor = vec4(mix(col0, color, smoothstep(1.2, 0.4, max(abs(p.x), abs(p.y)))), 1.0);
+            }
+        `;
+        function initShader(gl, vs, fs) {
+            const s = (t, src) => { const sh = gl.createShader(t); gl.shaderSource(sh, src); gl.compileShader(sh); return sh; };
+            const p = gl.createProgram(); gl.attachShader(p, s(gl.VERTEX_SHADER, vs)); gl.attachShader(p, s(gl.FRAGMENT_SHADER, fs));
+            gl.linkProgram(p); return p;
+        }
+        const program = initShader(gl, vsSource, fsSource);
+        const posLoc = gl.getAttribLocation(program, 'aVertexPosition');
+        const resLoc = gl.getUniformLocation(program, 'u_resolution');
+        const timeLoc = gl.getUniformLocation(program, 'u_time');
+        const buf = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([1,1,-1,1,1,-1,-1,-1]), gl.STATIC_DRAW);
+        function render(now) {
+            canvas.width = canvas.clientWidth; canvas.height = canvas.clientHeight;
+            gl.viewport(0, 0, canvas.width, canvas.height);
+            gl.useProgram(program);
+            gl.enableVertexAttribArray(posLoc);
+            gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
+            gl.uniform2f(resLoc, canvas.width, canvas.height);
+            gl.uniform1f(timeLoc, now * 0.0004);
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+            requestAnimationFrame(render);
+        }
+        requestAnimationFrame(render);
+    </script>
+</body></html>
 """
 
 
