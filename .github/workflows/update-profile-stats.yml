@@ -42,7 +42,7 @@ jobs:
         env:
           GH_USERNAME: ${{ vars.GH_USERNAME }}
           GH_TOKEN: ${{ secrets.PROFILE_STATS_TOKEN }}
-          PROFILE_STATS_WINDOW_DAYS: "7"
+          PROFILE_STATS_WINDOW_DAYS: "30"
           PROFILE_STATS_EXCLUDED_REPOS: ""
           PYTHONUNBUFFERED: "1"
         run: python3 scripts/update_profile_stats.py --update-readme

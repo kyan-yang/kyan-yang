@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import date, datetime
+from datetime import datetime
 
 
 @dataclass
@@ -30,13 +30,6 @@ class CommitRecord:
 
 
 @dataclass
-class TemporalCommit:
-    repo: str
-    sha: str
-    committed_at: datetime
-
-
-@dataclass
 class CommitSummary:
     additions: int = 0
     deletions: int = 0
@@ -55,30 +48,7 @@ class CollectedStats:
 @dataclass
 class ActivityDataset:
     code_commits: list[CommitRecord]
-    temporal_commits: list[TemporalCommit]
     warnings: list[str]
-
-
-@dataclass
-class TemporalCell:
-    day: date
-    count: int
-    level: int
-
-
-@dataclass
-class TemporalMetrics:
-    start_day: date
-    end_day: date
-    weeks: int
-    cells: list[TemporalCell]
-    peak_velocity: int
-    consistency_score: float
-    consistency_label: str
-    streak_weeks: int
-    streak_days: int
-    temporal_bias: str
-    observed_clock: str
 
 
 @dataclass
@@ -97,11 +67,11 @@ class WeeklySummary:
 
 @dataclass
 class DashboardCardData:
+    window_days: int
     total_commits: int
     total_additions: int
     total_deletions: int
     repo_count: int
-    heatmap_levels: list[int]
     language_segments: list[tuple[str, float]]
 
 
@@ -113,14 +83,14 @@ class RateLimitError(GitHubError):
     pass
 
 
-def fake_dev_card() -> DashboardCardData:
+def fake_dev_card(window_days: int = 22 * 7) -> DashboardCardData:
     """Sample data for local dev/testing without hitting the GitHub API."""
     return DashboardCardData(
+        window_days=window_days,
         total_commits=182,
         total_additions=2_400_000,
         total_deletions=1_100_000,
         repo_count=12,
-        heatmap_levels=[(index % 4) for index in range(154)],
         language_segments=[
             ("TypeScript", 0.42),
             ("Python", 0.28),

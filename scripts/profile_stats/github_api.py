@@ -8,7 +8,7 @@ import urllib.request
 from datetime import datetime, timezone
 
 from .config import API_ROOT, REQUEST_TIMEOUT_SECONDS, detect_language, env_int, excluded_repos, is_code_file
-from .models import ActivityDataset, CommitRecord, CommitSummary, GitHubError, RateLimitError, RepoStats, TemporalCommit
+from .models import ActivityDataset, CommitRecord, CommitSummary, GitHubError, RateLimitError, RepoStats
 
 
 def now_utc() -> datetime:
@@ -246,12 +246,10 @@ def extract_commit_datetime(commit: dict[str, object]) -> datetime:
 
 def collect_activity(
     username: str,
-    temporal_window_start: datetime,
     code_window_start: datetime,
     window_end: datetime,
 ) -> ActivityDataset:
-    repos = candidate_repositories(username, temporal_window_start)
-    temporal_commits: list[TemporalCommit] = []
+    repos = candidate_repositories(username, code_window_start)
     code_commits: list[CommitRecord] = []
     seen_commits: set[str] = set()
     warnings: list[str] = []
@@ -259,7 +257,7 @@ def collect_activity(
     for owner, repo in repos.values():
         full_name = f"{owner}/{repo}"
         try:
-            commits = list_recent_commits(owner, repo, username, temporal_window_start, window_end)
+            commits = list_recent_commits(owner, repo, username, code_window_start, window_end)
         except GitHubError as exc:
             warnings.append(f"Skipped {full_name}: {exc}")
             continue
@@ -275,12 +273,6 @@ def collect_activity(
             seen_commits.add(commit_key)
 
             committed_at = extract_commit_datetime(commit)
-            temporal_commits.append(
-                TemporalCommit(repo=full_name, sha=sha, committed_at=committed_at)
-            )
-
-            if committed_at < code_window_start:
-                continue
 
             try:
                 summary = commit_stats(owner, repo, sha)
@@ -303,5 +295,4 @@ def collect_activity(
             )
 
     code_commits.sort(key=lambda item: item.committed_at)
-    temporal_commits.sort(key=lambda item: item.committed_at)
-    return ActivityDataset(code_commits=code_commits, temporal_commits=temporal_commits, warnings=warnings)
+    return ActivityDataset(code_commits=code_commits, warnings=warnings)

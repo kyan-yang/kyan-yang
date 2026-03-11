@@ -68,30 +68,6 @@ def render_activity_svg(card: DashboardCardData | None = None) -> str:
             f"A {radius:.3f} {radius:.3f} 0 {large_arc} 1 {end_x:.3f} {end_y:.3f}"
         )
 
-    heatmap_colors = {
-        0: "#1B1A22",
-        1: "rgba(136, 62, 67, 0.32)",
-        2: "rgba(136, 62, 67, 0.62)",
-        3: "#883E43",
-    }
-    heatmap_glow = {3: ' filter="url(#cellGlow)"'}
-    heatmap_cells: list[str] = []
-    grid_x = 24
-    grid_y = 253
-    cell_size = 17
-    gap = 3
-    for index, level in enumerate(card.heatmap_levels[: 22 * 7]):
-        if level < 0:
-            continue
-        column = index // 7
-        row = index % 7
-        x = grid_x + column * (cell_size + gap)
-        y = grid_y + row * (cell_size + gap)
-        heatmap_cells.append(
-            f'<rect x="{x}" y="{y}" width="{cell_size}" height="{cell_size}" '
-            f'fill="{heatmap_colors.get(level, heatmap_colors[0])}" rx="0.8"{heatmap_glow.get(level, "")}></rect>'
-        )
-
     palette = ["#F0DDD8", "#C47A7F", "#883E43", "#5C262A"]
     donut_paths: list[str] = []
     legend_rows: list[str] = []
@@ -115,6 +91,8 @@ def render_activity_svg(card: DashboardCardData | None = None) -> str:
         )
         offset = end
 
+    total_changed = card.total_additions + card.total_deletions
+
     return f"""<svg width="480" height="480" viewBox="0 0 480 480" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="GitHub activity dashboard">
   <defs>
     <radialGradient id="rubyGlowA" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(192 264) rotate(90) scale(150 190)">
@@ -131,13 +109,6 @@ def render_activity_svg(card: DashboardCardData | None = None) -> str:
       <stop offset="0.5" stop-color="#0D1117" stop-opacity="0.6"/>
       <stop offset="0.8" stop-color="#0D1117"/>
     </radialGradient>
-    <filter id="cellGlow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="2.5" result="blur"/>
-      <feMerge>
-        <feMergeNode in="blur"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
     <style>
       .mono {{ font-family: "Space Mono", "SFMono-Regular", Consolas, monospace; fill: #F0DDD8; }}
       .serif {{ font-family: "Cormorant Garamond", Georgia, serif; fill: #F0DDD8; }}
@@ -151,10 +122,9 @@ def render_activity_svg(card: DashboardCardData | None = None) -> str:
   <rect width="480" height="480" fill="url(#rubyGlowA)"/>
   <rect width="480" height="480" fill="url(#rubyGlowB)"/>
   <rect width="480" height="480" fill="url(#vignette)"/>
-  <line x1="0" y1="240.5" x2="480" y2="240.5" stroke="rgba(240, 221, 216, 0.12)" stroke-opacity="0.4"/>
 
   <line x1="24" y1="81.5" x2="456" y2="81.5" stroke="rgba(240, 221, 216, 0.12)"/>
-  <text x="24" y="54" class="mono small" font-weight="700">Past 14 days activity</text>
+  <text x="24" y="54" class="mono small" font-weight="700">Past {format_int(card.window_days)} days activity</text>
 
   <text x="117" y="170" class="serif" font-size="66" font-style="italic" text-anchor="middle">{format_int(card.total_commits)}</text>
   <text x="122" y="206" class="mono tiny" text-anchor="middle" letter-spacing="3.2px">COMMITS</text>
@@ -166,7 +136,9 @@ def render_activity_svg(card: DashboardCardData | None = None) -> str:
   <text x="352" y="110" class="mono tiny">LANGUAGE</text>
   {''.join(legend_rows)}
 
-  {''.join(heatmap_cells)}
+  <line x1="24" y1="240.5" x2="456" y2="240.5" stroke="rgba(240, 221, 216, 0.12)" stroke-opacity="0.4"/>
+  <text x="240" y="284" class="mono tiny" text-anchor="middle">CODE LINES CHANGED</text>
+  <text x="240" y="352" class="serif" font-size="56" font-style="italic" text-anchor="middle">{format_compact_int(total_changed)}</text>
 
   <line x1="24" y1="410.5" x2="456" y2="410.5" stroke="rgba(240, 221, 216, 0.12)"/>
   <line x1="154.5" y1="423" x2="154.5" y2="457" stroke="rgba(240, 221, 216, 0.12)"/>
@@ -246,8 +218,8 @@ def render_stats(
 
     lines.extend(
         [
-            "<details>",
-            "<summary>Open raw 7-day breakdown</summary>",
+        "<details>",
+        f"<summary>Open raw {format_int(window_days)}-day breakdown</summary>",
             "",
             f"<sub>Updated {updated_at}</sub>",
             "",
