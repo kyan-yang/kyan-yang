@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="448" viewBox="0 0 1120 448" fill="none" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="772" viewBox="0 0 1120 772" fill="none" role="img" aria-labelledby="title desc">
 <title id="title">Weekly code activity</title>
 <desc id="desc">Generated language breakdown and weekly code activity summary.</desc>
 <defs>
@@ -11,26 +11,56 @@
 <stop offset="100%" stop-color="#5b8cff"/>
 </linearGradient>
 </defs>
-<rect x="1" y="1" width="1118" height="446" rx="28" fill="url(#bg)" stroke="#273449"/>
+<rect x="1" y="1" width="1118" height="770" rx="28" fill="url(#bg)" stroke="#273449"/>
 <text x="52" y="60" fill="#8fa7c6" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="18">Generated from GitHub commits</text>
 <text x="52" y="108" fill="#f5f7fb" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="42" font-weight="700">Weekly Code Activity</text>
 <text x="52" y="144" fill="#8fa7c6" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="20">Last 7 calendar days, including today • updated Mar 11, 2026</text>
 <rect x="52" y="178" width="220" height="86" rx="18" fill="#111c2f" stroke="#243349"/>
 <text x="72" y="212" fill="#8fa7c6" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="16">Code lines</text>
-<text x="72" y="247" fill="#f5f7fb" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="28" font-weight="700">648</text>
+<text x="72" y="247" fill="#f5f7fb" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="28" font-weight="700">26,248</text>
 <rect x="292" y="178" width="220" height="86" rx="18" fill="#111c2f" stroke="#243349"/>
 <text x="312" y="212" fill="#8fa7c6" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="16">Commits</text>
-<text x="312" y="247" fill="#f5f7fb" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="28" font-weight="700">2</text>
+<text x="312" y="247" fill="#f5f7fb" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="28" font-weight="700">55</text>
 <rect x="532" y="178" width="220" height="86" rx="18" fill="#111c2f" stroke="#243349"/>
 <text x="552" y="212" fill="#8fa7c6" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="16">Repos</text>
-<text x="552" y="247" fill="#f5f7fb" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="28" font-weight="700">1</text>
+<text x="552" y="247" fill="#f5f7fb" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="28" font-weight="700">5</text>
 <rect x="772" y="178" width="220" height="86" rx="18" fill="#111c2f" stroke="#243349"/>
 <text x="792" y="212" fill="#8fa7c6" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="16">Active days</text>
-<text x="792" y="247" fill="#f5f7fb" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="28" font-weight="700">1/7</text>
-<text x="52" y="324" fill="#f5f7fb" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="24">Python</text>
-<text x="330" y="324" fill="#d6dfeb" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="24">648 lines</text>
+<text x="792" y="247" fill="#f5f7fb" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="28" font-weight="700">6/7</text>
+<text x="52" y="324" fill="#f5f7fb" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="24">TypeScript</text>
+<text x="330" y="324" fill="#d6dfeb" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="24">10,927 lines</text>
 <rect x="610" y="302" width="300" height="18" rx="9" fill="#1d2b41"/>
-<rect x="610" y="302" width="300" height="18" rx="9" fill="url(#accent)"/>
-<text x="940" y="324" fill="#f5f7fb" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="24">100.0%</text>
-<text x="52" y="420" fill="#6f87a7" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="16">Only code files are counted. Language detection is inferred from changed filenames and extensions.</text>
+<rect x="610" y="302" width="125" height="18" rx="9" fill="url(#accent)"/>
+<text x="940" y="324" fill="#f5f7fb" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="24">41.6%</text>
+<text x="52" y="378" fill="#f5f7fb" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="24">Python</text>
+<text x="330" y="378" fill="#d6dfeb" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="24">8,125 lines</text>
+<rect x="610" y="356" width="300" height="18" rx="9" fill="#1d2b41"/>
+<rect x="610" y="356" width="93" height="18" rx="9" fill="url(#accent)"/>
+<text x="940" y="378" fill="#f5f7fb" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="24">31.0%</text>
+<text x="52" y="432" fill="#f5f7fb" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="24">CSS</text>
+<text x="330" y="432" fill="#d6dfeb" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="24">6,401 lines</text>
+<rect x="610" y="410" width="300" height="18" rx="9" fill="#1d2b41"/>
+<rect x="610" y="410" width="73" height="18" rx="9" fill="url(#accent)"/>
+<text x="940" y="432" fill="#f5f7fb" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="24">24.4%</text>
+<text x="52" y="486" fill="#f5f7fb" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="24">JavaScript</text>
+<text x="330" y="486" fill="#d6dfeb" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="24">538 lines</text>
+<rect x="610" y="464" width="300" height="18" rx="9" fill="#1d2b41"/>
+<rect x="610" y="464" width="8" height="18" rx="9" fill="url(#accent)"/>
+<text x="940" y="486" fill="#f5f7fb" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="24">2.0%</text>
+<text x="52" y="540" fill="#f5f7fb" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="24">HTML</text>
+<text x="330" y="540" fill="#d6dfeb" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="24">136 lines</text>
+<rect x="610" y="518" width="300" height="18" rx="9" fill="#1d2b41"/>
+<rect x="610" y="518" width="8" height="18" rx="9" fill="url(#accent)"/>
+<text x="940" y="540" fill="#f5f7fb" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="24">0.5%</text>
+<text x="52" y="594" fill="#f5f7fb" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="24">SQL</text>
+<text x="330" y="594" fill="#d6dfeb" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="24">67 lines</text>
+<rect x="610" y="572" width="300" height="18" rx="9" fill="#1d2b41"/>
+<rect x="610" y="572" width="8" height="18" rx="9" fill="url(#accent)"/>
+<text x="940" y="594" fill="#f5f7fb" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="24">0.3%</text>
+<text x="52" y="648" fill="#f5f7fb" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="24">Dockerfile</text>
+<text x="330" y="648" fill="#d6dfeb" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="24">54 lines</text>
+<rect x="610" y="626" width="300" height="18" rx="9" fill="#1d2b41"/>
+<rect x="610" y="626" width="8" height="18" rx="9" fill="url(#accent)"/>
+<text x="940" y="648" fill="#f5f7fb" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="24">0.2%</text>
+<text x="52" y="744" fill="#6f87a7" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="16">Only code files are counted. Language detection is inferred from changed filenames and extensions.</text>
 </svg>
