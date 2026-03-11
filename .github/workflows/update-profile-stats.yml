@@ -15,6 +15,7 @@ concurrency:
 jobs:
   update:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -24,12 +25,23 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Validate workflow configuration
+        env:
+          GH_TOKEN: ${{ secrets.PROFILE_STATS_TOKEN }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::error::Missing PROFILE_STATS_TOKEN secret."
+            echo "::error::Create a fine-grained personal access token that can read the repositories you want counted, then save it as PROFILE_STATS_TOKEN."
+            exit 1
+          fi
+
       - name: Refresh README stats
         env:
           GH_USERNAME: ${{ vars.GH_USERNAME }}
           GH_TOKEN: ${{ secrets.PROFILE_STATS_TOKEN }}
           PROFILE_STATS_WINDOW_DAYS: "7"
           PROFILE_STATS_EXCLUDED_REPOS: ""
+          PYTHONUNBUFFERED: "1"
         run: python3 scripts/update_profile_stats.py
 
       - name: Commit README changes
