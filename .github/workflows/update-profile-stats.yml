@@ -45,17 +45,17 @@ jobs:
           PROFILE_STATS_WINDOW_DAYS: "7"
           PROFILE_STATS_EXCLUDED_REPOS: ""
           PYTHONUNBUFFERED: "1"
-        run: python3 scripts/update_profile_stats.py
+        run: python3 scripts/update_profile_stats.py --update-readme
 
       - name: Commit README changes
         run: |
-          if git diff --quiet README.md assets/activity-card.svg; then
-            echo "README and SVG card are already up to date."
+          if git diff --quiet README.md assets/activity-card.gif assets/activity-card-preview.html; then
+            echo "README, GIF card, and preview are already up to date."
             exit 0
           fi
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add README.md assets/activity-card.svg
+          git add README.md assets/activity-card.gif assets/activity-card-preview.html
           git commit -m "chore: update profile stats"
           git push

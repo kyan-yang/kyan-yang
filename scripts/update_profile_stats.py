@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import argparse
 import html
 import json
+import math
 import os
 import sys
 import urllib.error
@@ -14,10 +16,34 @@ from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
+
+
+def load_dotenv(path: Path = Path(".env")) -> None:
+    if not path.exists():
+        return
+
+    for raw_line in path.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        key = key.strip()
+        if not key or key in os.environ:
+            continue
+        value = value.strip()
+        if value[:1] == value[-1:] and value[:1] in {'"', "'"}:
+            value = value[1:-1]
+        os.environ[key] = value
+
+
+load_dotenv()
+
 
 API_ROOT = "https://api.github.com"
 README_PATH = Path(os.getenv("PROFILE_STATS_README", "README.md"))
-SVG_PATH = Path(os.getenv("PROFILE_STATS_SVG", "assets/activity-card.svg"))
+GIF_PATH = Path(os.getenv("PROFILE_STATS_GIF", "assets/activity-card.gif"))
+HTML_PREVIEW_PATH = Path(os.getenv("PROFILE_STATS_HTML_PREVIEW", "assets/activity-card-preview.html"))
 REQUEST_TIMEOUT_SECONDS = 30
 START_MARKER = "<!-- profile-stats:start -->"
 END_MARKER = "<!-- profile-stats:end -->"
@@ -132,6 +158,13 @@ class CommitRecord:
 
 
 @dataclass
+class TemporalCommit:
+    repo: str
+    sha: str
+    committed_at: datetime
+
+
+@dataclass
 class CollectedStats:
     per_repo: dict[str, RepoStats]
     per_language: dict[str, RepoStats]
@@ -145,6 +178,41 @@ class CommitSummary:
     deletions: int = 0
     included_files: int = 0
     per_language: dict[str, RepoStats] = field(default_factory=dict)
+
+
+@dataclass
+class TemporalCell:
+    day: date
+    count: int
+    level: int
+
+
+@dataclass
+class TemporalMetrics:
+    start_day: date
+    end_day: date
+    weeks: int
+    cells: list[TemporalCell]
+    peak_velocity: int
+    consistency_score: float
+    consistency_label: str
+    streak_weeks: int
+    temporal_bias: str
+    observed_clock: str
+
+
+@dataclass
+class WeeklySummary:
+    window_days: int
+    total_additions: int
+    total_deletions: int
+    net_delta: int
+    total_changed: int
+    total_commits: int
+    repo_count: int
+    active_days: int
+    average_changed: int
+    average_active_day: int
 
 
 class GitHubError(RuntimeError):
@@ -617,6 +685,177 @@ def collect_stats(username: str, window_start: datetime, window_end: datetime) -
         warnings=warnings,
     )
 
+
+def collect_temporal_commits(username: str, window_start: datetime, window_end: datetime) -> tuple[list[TemporalCommit], list[str]]:
+    repos = candidate_repositories(username, window_start)
+    commit_records: list[TemporalCommit] = []
+    seen_commits: set[str] = set()
+    warnings: list[str] = []
+
+    for owner, repo in repos.values():
+        full_name = f"{owner}/{repo}"
+        try:
+            commits = list_recent_commits(owner, repo, username, window_start, window_end)
+        except GitHubError as exc:
+            warnings.append(f"Skipped {full_name}: {exc}")
+            continue
+
+        for commit in commits:
+            sha = str(commit.get("sha", "")).strip()
+            if not sha:
+                continue
+
+            commit_key = f"{full_name}:{sha}"
+            if commit_key in seen_commits:
+                continue
+            seen_commits.add(commit_key)
+
+            commit_records.append(
+                TemporalCommit(
+                    repo=full_name,
+                    sha=sha,
+                    committed_at=extract_commit_datetime(commit),
+                )
+            )
+
+    commit_records.sort(key=lambda item: item.committed_at)
+    return commit_records, warnings
+
+
+def classify_temporal_bias(hours: list[int]) -> tuple[str, str]:
+    if not any(hours):
+        return "Undetermined", "UTC BASELINE"
+
+    peak_hour = max(range(24), key=lambda hour: (hours[hour], -hour))
+    if peak_hour >= 21 or peak_hour < 5:
+        bias = "Nocturnal"
+    elif 5 <= peak_hour < 10:
+        bias = "Matinal"
+    elif 10 <= peak_hour < 17:
+        bias = "Diurnal"
+    else:
+        bias = "Crepuscular"
+
+    return bias, f"PEAK {peak_hour:02d}:00 UTC"
+
+
+def consistency_label(score: float) -> str:
+    if score >= 0.92:
+        return "Alpha"
+    if score >= 0.8:
+        return "Beta"
+    if score >= 0.65:
+        return "Gamma"
+    if score >= 0.45:
+        return "Delta"
+    return "Epsilon"
+
+
+def intensity_levels(counts: list[int]) -> list[int]:
+    non_zero = sorted(count for count in counts if count > 0)
+    if not non_zero:
+        return [0 for _ in counts]
+
+    if len(non_zero) == 1:
+        return [4 if count else 0 for count in counts]
+
+    def percentile(fraction: float) -> int:
+        index = min(len(non_zero) - 1, max(0, round((len(non_zero) - 1) * fraction)))
+        return non_zero[index]
+
+    low = percentile(0.25)
+    mid = percentile(0.5)
+    high = percentile(0.8)
+    levels: list[int] = []
+
+    for count in counts:
+        if count <= 0:
+            levels.append(0)
+        elif count >= high:
+            levels.append(4)
+        elif count >= mid:
+            levels.append(3)
+        elif count >= low:
+            levels.append(2)
+        else:
+            levels.append(1)
+
+    return levels
+
+
+def build_temporal_metrics(commits: list[TemporalCommit], window_end: datetime, weeks: int) -> TemporalMetrics:
+    end_day = window_end.astimezone(timezone.utc).date()
+    total_days = weeks * 7
+    start_day = end_day - timedelta(days=total_days - 1)
+    daily_counts: dict[date, int] = {
+        start_day + timedelta(days=offset): 0 for offset in range(total_days)
+    }
+    hours = [0 for _ in range(24)]
+
+    for commit in commits:
+        committed_at = commit.committed_at.astimezone(timezone.utc)
+        committed_day = committed_at.date()
+        if committed_day not in daily_counts:
+            continue
+        daily_counts[committed_day] += 1
+        hours[committed_at.hour] += 1
+
+    days = [start_day + timedelta(days=offset) for offset in range(total_days)]
+    counts = [daily_counts[day] for day in days]
+    levels = intensity_levels(counts)
+    weekly_counts = [sum(counts[index : index + 7]) for index in range(0, len(counts), 7)]
+    active_weeks = sum(1 for count in weekly_counts if count > 0)
+    streak = 0
+    for count in reversed(weekly_counts):
+        if count <= 0:
+            break
+        streak += 1
+
+    bias, observed_clock = classify_temporal_bias(hours)
+    score = active_weeks / weeks if weeks else 0.0
+
+    return TemporalMetrics(
+        start_day=start_day,
+        end_day=end_day,
+        weeks=weeks,
+        cells=[
+            TemporalCell(day=day, count=count, level=level)
+            for day, count, level in zip(days, counts, levels)
+        ],
+        peak_velocity=max(weekly_counts, default=0),
+        consistency_score=score,
+        consistency_label=consistency_label(score),
+        streak_weeks=streak,
+        temporal_bias=bias,
+        observed_clock=observed_clock,
+    )
+
+
+def build_weekly_summary(collected: CollectedStats, window_days: int) -> WeeklySummary:
+    per_repo = collected.per_repo
+    commits = collected.commits
+    total_additions = sum(repo.additions for repo in per_repo.values())
+    total_deletions = sum(repo.deletions for repo in per_repo.values())
+    total_commits = sum(repo.commits for repo in per_repo.values())
+    total_changed = total_additions + total_deletions
+    repo_count = len(per_repo)
+    active_days = len({commit.committed_at.astimezone(timezone.utc).date() for commit in commits})
+    average_changed = round(total_changed / total_commits) if total_commits else 0
+    average_active_day = round(total_changed / active_days) if active_days else 0
+    net_delta = total_additions - total_deletions
+    return WeeklySummary(
+        window_days=window_days,
+        total_additions=total_additions,
+        total_deletions=total_deletions,
+        net_delta=net_delta,
+        total_changed=total_changed,
+        total_commits=total_commits,
+        repo_count=repo_count,
+        active_days=active_days,
+        average_changed=average_changed,
+        average_active_day=average_active_day,
+    )
+
 def last_n_dates(window_end: datetime, window_days: int) -> list[date]:
     final_day = window_end.astimezone(timezone.utc).date()
     return [final_day - timedelta(days=offset) for offset in range(window_days - 1, -1, -1)]
@@ -658,101 +897,231 @@ def render_daily_chart(commits: list[CommitRecord], window_end: datetime, window
     return "\n".join(lines)
 
 
-def top_languages(per_language: dict[str, RepoStats], limit: int = 8) -> list[tuple[str, RepoStats]]:
-    return sorted(
-        per_language.items(),
-        key=lambda item: (item[1].changed, item[1].additions, item[0]),
-        reverse=True,
-    )[:limit]
+def format_signed_int(value: int) -> str:
+    return f"{'+' if value >= 0 else '-'}{format_int(abs(value))}"
 
 
-def render_activity_card(window_days: int, collected: CollectedStats, window_end: datetime) -> str:
-    per_language = collected.per_language
-    commits = collected.commits
-    language_rows = top_languages(per_language)
-    total_changed = sum(stats.changed for stats in per_language.values())
-    total_commits = len(commits)
-    repo_count = len(collected.per_repo)
-    active_days = len({commit.committed_at.astimezone(timezone.utc).date() for commit in commits})
-    updated_label = window_end.strftime("%b %d, %Y")
+def load_font_candidates() -> dict[str, list[str]]:
+    return {
+        "mono": [
+            "/System/Library/Fonts/Supplemental/Courier New.ttf",
+            "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf",
+            "/usr/share/fonts/truetype/liberation2/LiberationMono-Regular.ttf",
+        ],
+        "serif": [
+            "/System/Library/Fonts/Supplemental/Georgia.ttf",
+            "/System/Library/Fonts/Supplemental/Times New Roman.ttf",
+            "/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf",
+            "/usr/share/fonts/truetype/liberation2/LiberationSerif-Regular.ttf",
+        ],
+    }
 
-    width = 1120
-    row_height = 54
-    bar_width = 300
-    summary_y = 178
-    summary_height = 86
-    languages_start_y = 324
-    footer_height = 70
-    rows = max(len(language_rows), 1)
-    height = languages_start_y + (rows * row_height) + footer_height
 
-    svg: list[str] = [
-        f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}" fill="none" role="img" aria-labelledby="title desc">',
-        "<title id=\"title\">Weekly code activity</title>",
-        "<desc id=\"desc\">Generated language breakdown and weekly code activity summary.</desc>",
-        "<defs>",
-        '<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">',
-        '<stop offset="0%" stop-color="#09111f"/>',
-        '<stop offset="100%" stop-color="#0f1f36"/>',
-        "</linearGradient>",
-        '<linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">',
-        '<stop offset="0%" stop-color="#71e5ff"/>',
-        '<stop offset="100%" stop-color="#5b8cff"/>',
-        "</linearGradient>",
-        "</defs>",
-        '<rect x="1" y="1" width="1118" height="{height_minus}" rx="28" fill="url(#bg)" stroke="#273449"/>'.replace(
-            "{height_minus}", str(height - 2)
-        ),
-        '<text x="52" y="108" fill="#f5f7fb" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="42" font-weight="700">Weekly Code Activity</text>',
-        f'<text x="52" y="144" fill="#8fa7c6" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="20">Last {window_days} calendar days, including today • updated {xml_escape(updated_label)}</text>',
+def load_font(kind: str, size: int) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
+    for path in load_font_candidates()[kind]:
+        if not Path(path).exists():
+            continue
+        try:
+            return ImageFont.truetype(path, size=size)
+        except OSError:
+            continue
+    return ImageFont.load_default()
+
+
+def text_width(draw: ImageDraw.ImageDraw, text: str, font: ImageFont.ImageFont, tracking: int = 0) -> int:
+    if not text:
+        return 0
+    if tracking <= 0:
+        bbox = draw.textbbox((0, 0), text, font=font)
+        return int(bbox[2] - bbox[0])
+    width = 0
+    for index, char in enumerate(text):
+        bbox = draw.textbbox((0, 0), char, font=font)
+        width += int(bbox[2] - bbox[0])
+        if index < len(text) - 1:
+            width += tracking
+    return width
+
+
+def draw_text(
+    draw: ImageDraw.ImageDraw,
+    x: float,
+    y: float,
+    text: str,
+    *,
+    font: ImageFont.ImageFont,
+    fill: tuple[int, int, int, int],
+    tracking: int = 0,
+    align: str = "left",
+) -> None:
+    start_x = x
+    if tracking > 0:
+        total_width = text_width(draw, text, font, tracking)
+        if align == "center":
+            start_x -= total_width / 2
+        elif align == "right":
+            start_x -= total_width
+        for index, char in enumerate(text):
+            draw.text((start_x, y), char, font=font, fill=fill)
+            char_bbox = draw.textbbox((0, 0), char, font=font)
+            start_x += (char_bbox[2] - char_bbox[0]) + tracking
+        return
+
+    anchor = {"left": "la", "center": "ma", "right": "ra"}[align]
+    draw.text((x, y), text, font=font, fill=fill, anchor=anchor)
+
+
+def render_activity_frame(username: str, metrics: TemporalMetrics, summary: WeeklySummary, frame_index: int, frame_count: int, size: int = 600) -> Image.Image:
+    scale = size / 480.0
+    background = Image.new("RGBA", (size, size), (13, 17, 23, 255))
+    draw = ImageDraw.Draw(background)
+    mono_small = load_font("mono", int(9 * scale))
+    mono_body = load_font("mono", int(11 * scale))
+    serif_big = load_font("serif", int(34 * scale))
+    serif_mid = load_font("serif", int(20 * scale))
+    phase = (frame_index / frame_count) * math.tau
+
+    glow = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    glow_draw = ImageDraw.Draw(glow)
+    blobs = [
+        (size * 0.48 + math.sin(phase * 0.9) * size * 0.03, size * 0.46 + math.cos(phase * 1.2) * size * 0.02, size * 0.54, size * 0.48, (125, 51, 57, 108)),
+        (size * 0.60 + math.cos(phase * 1.1) * size * 0.025, size * 0.55 + math.sin(phase * 0.8) * size * 0.03, size * 0.36, size * 0.34, (240, 221, 216, 28)),
+        (size * 0.40 + math.sin(phase * 0.6) * size * 0.03, size * 0.38 + math.sin(phase * 1.4) * size * 0.02, size * 0.46, size * 0.42, (91, 38, 43, 52)),
     ]
+    for cx, cy, w, h, fill in blobs:
+        glow_draw.ellipse((cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2), fill=fill)
+    glow = glow.filter(ImageFilter.GaussianBlur(radius=max(12, int(20 * scale))))
+    background.alpha_composite(glow)
 
-    summary = [
-        ("Code lines", format_int(total_changed)),
-        ("Commits", format_int(total_commits)),
-        ("Repos", format_int(repo_count)),
-        ("Active days", f"{active_days}/{window_days}"),
-    ]
-    metric_x = 52
-    for label, value in summary:
-        svg.extend(
-            [
-                f'<rect x="{metric_x}" y="{summary_y}" width="220" height="{summary_height}" rx="18" fill="#111c2f" stroke="#243349"/>',
-                f'<text x="{metric_x + 20}" y="{summary_y + 34}" fill="#8fa7c6" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="16">{xml_escape(label)}</text>',
-                f'<text x="{metric_x + 20}" y="{summary_y + 69}" fill="#f5f7fb" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="28" font-weight="700">{xml_escape(value)}</text>',
-            ]
-        )
-        metric_x += 240
+    draw.rectangle((24 * scale, 24 * scale, size - 24 * scale, size - 24 * scale), outline=(27, 34, 44, 255), width=max(1, int(scale)))
+    draw.line((size / 2, 80 * scale, size / 2, 148 * scale), fill=(240, 221, 216, 28), width=1)
 
-    if not language_rows:
-        empty_y = languages_start_y + 8
-        svg.extend(
-            [
-                f'<text x="52" y="{empty_y}" fill="#f5f7fb" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="28" font-weight="600">No code-file changes in this window.</text>',
-                f'<text x="52" y="{empty_y + 38}" fill="#8fa7c6" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="18">The card will populate after your next code commit.</text>',
-            ]
-        )
-    else:
-        start_y = languages_start_y
-        for index, (language, stats) in enumerate(language_rows):
-            y = start_y + (index * row_height)
-            share = (stats.changed / total_changed) if total_changed else 0
-            filled = max(8, round(bar_width * share))
-            if stats.changed == 0:
-                filled = 0
+    # Header text
+    left_x = 48 * scale
+    right_x = size - 48 * scale
+    top_y = 56 * scale
+    draw_text(draw, left_x, top_y, username, font=serif_big, fill=(240, 221, 216, 255))
+    period = f"{metrics.start_day.strftime('%Y.%m.%d')} \u2014 {metrics.end_day.strftime('%Y.%m.%d')}"
+    draw_text(draw, left_x, top_y + 38 * scale, period, font=mono_small, fill=(240, 221, 216, 128), tracking=max(0, int(scale)))
+    draw_text(draw, left_x, top_y + 52 * scale, f"7D DELTA: {format_signed_int(summary.net_delta)}", font=mono_small, fill=(240, 221, 216, 128), tracking=max(0, int(scale)))
 
-            svg.extend(
-                [
-                    f'<text x="52" y="{y}" fill="#f5f7fb" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="24">{xml_escape(language)}</text>',
-                    f'<text x="330" y="{y}" fill="#d6dfeb" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="24">{xml_escape(format_int(stats.changed))} lines</text>',
-                    f'<rect x="610" y="{y - 22}" width="{bar_width}" height="18" rx="9" fill="#1d2b41"/>',
-                    f'<rect x="610" y="{y - 22}" width="{filled}" height="18" rx="9" fill="url(#accent)"/>',
-                    f'<text x="940" y="{y}" fill="#f5f7fb" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="24">{xml_escape(format_percent(share * 100))}</text>',
-                ]
-            )
+    draw_text(draw, right_x, top_y + 2 * scale, f"{format_int(summary.total_changed)}", font=serif_big, fill=(240, 221, 216, 255), align="right")
+    draw_text(draw, right_x, top_y + 38 * scale, "CODE LINES", font=mono_small, fill=(240, 221, 216, 128), tracking=max(0, int(scale)), align="right")
+    draw_text(draw, right_x, top_y + 52 * scale, f"+{format_int(summary.total_additions)} / -{format_int(summary.total_deletions)}", font=mono_small, fill=(240, 221, 216, 128), tracking=max(0, int(scale)), align="right")
 
-    svg.append("</svg>")
-    return "\n".join(svg)
+    # Heatmap panel — sized to contain 26×7 grid with 10px padding
+    cell_size = 12 * scale
+    gap = 3 * scale
+    grid_cols = min(len(metrics.cells) // 7, 26) if metrics.cells else 26
+    grid_w = grid_cols * cell_size + (grid_cols - 1) * gap
+    grid_h = 7 * cell_size + 6 * gap
+    panel_pad = 10 * scale
+    panel_w = grid_w + panel_pad * 2
+    panel_h = grid_h + panel_pad * 2
+    panel_x = (size - panel_w) / 2
+    panel_y = 186 * scale
+    panel_rect = (panel_x, panel_y, panel_x + panel_w, panel_y + panel_h)
+
+    shadow = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    shadow_draw = ImageDraw.Draw(shadow)
+    shadow_draw.rectangle((panel_rect[0], panel_rect[1] + 8 * scale, panel_rect[2], panel_rect[3] + 8 * scale), fill=(0, 0, 0, 70))
+    shadow = shadow.filter(ImageFilter.GaussianBlur(radius=max(4, int(10 * scale))))
+    background.alpha_composite(shadow)
+    draw.rectangle(panel_rect, fill=(13, 17, 23, 110), outline=(240, 221, 216, 30), width=1)
+
+    # "// ANNUAL ACTIVITY MATRIX" label
+    draw_text(draw, size / 2, panel_y - 14 * scale, "// ANNUAL ACTIVITY MATRIX", font=mono_small, fill=(240, 221, 216, 128), tracking=max(1, int(2 * scale)), align="center")
+
+    # Crosshair behind heatmap
+    cx, cy = size / 2, panel_y + panel_h / 2
+    draw.line((cx, panel_y - 24 * scale, cx, panel_y + panel_h + 12 * scale), fill=(240, 221, 216, 18), width=1)
+    draw.line((panel_x - 20 * scale, cy, panel_x + panel_w + 20 * scale, cy), fill=(240, 221, 216, 18), width=1)
+
+    # Heatmap grid
+    grid_x = panel_x + panel_pad
+    grid_y = panel_y + panel_pad
+    for index, cell in enumerate(metrics.cells):
+        column = index // 7
+        row = index % 7
+        x = grid_x + column * (cell_size + gap)
+        y = grid_y + row * (cell_size + gap)
+        colors = {0: (58, 26, 28, 225), 1: (92, 38, 42, 235), 2: (136, 62, 67, 240), 3: (196, 122, 127, 245), 4: (240, 221, 216, 250)}
+        if cell.level >= 3:
+            pulse = 0.82 + 0.18 * math.sin(phase + index * 0.18)
+            glow_fill = (196, 122, 127, int(70 * pulse)) if cell.level == 3 else (240, 221, 216, int(90 * pulse))
+            draw.rounded_rectangle((x - 2 * scale, y - 2 * scale, x + cell_size + 2 * scale, y + cell_size + 2 * scale), radius=max(1, int(2 * scale)), fill=glow_fill)
+        draw.rounded_rectangle((x, y, x + cell_size, y + cell_size), radius=max(1, int(scale)), fill=colors[cell.level])
+
+    # Legend centered below heatmap
+    legend_y = panel_y + panel_h + 14 * scale
+    legend_cell = 8 * scale
+    legend_gap = 6 * scale
+    legend_cells_w = 5 * legend_cell + 4 * legend_gap
+    less_w = text_width(draw, "LESS", mono_small, max(0, int(scale)))
+    more_w = text_width(draw, "MORE", mono_small, max(0, int(scale)))
+    total_legend_w = less_w + 8 * scale + legend_cells_w + 8 * scale + more_w
+    legend_start = (size - total_legend_w) / 2
+    draw_text(draw, legend_start, legend_y, "LESS", font=mono_small, fill=(240, 221, 216, 128), tracking=max(0, int(scale)))
+    lx = legend_start + less_w + 8 * scale
+    for fill in ((58, 26, 28, 220), (92, 38, 42, 235), (136, 62, 67, 240), (196, 122, 127, 245), (240, 221, 216, 255)):
+        draw.rounded_rectangle((lx, legend_y - 5 * scale, lx + legend_cell, legend_y + 3 * scale), radius=max(1, int(scale / 2)), fill=fill)
+        lx += legend_cell + legend_gap
+    draw_text(draw, lx + 2 * scale, legend_y, "MORE", font=mono_small, fill=(240, 221, 216, 128), tracking=max(0, int(scale)))
+
+    left_x = 35 * scale
+    right_x = size - 35 * scale
+    base_y = 358 * scale
+    draw.line((left_x, base_y - 4 * scale, left_x, base_y + 52 * scale), fill=(240, 221, 216, 32), width=1)
+    draw_text(draw, left_x + 10 * scale, base_y, f"{format_int(summary.total_changed)} lines", font=serif_mid, fill=(240, 221, 216, 255))
+    draw_text(draw, left_x + 10 * scale, base_y + 22 * scale, f"[ {format_signed_int(summary.net_delta)} net ]", font=mono_small, fill=(240, 221, 216, 128), tracking=max(0, int(scale)))
+    draw.line((left_x + 10 * scale, base_y + 38 * scale, left_x + 132 * scale, base_y + 38 * scale), fill=(240, 221, 216, 32), width=1)
+    draw_text(draw, left_x + 10 * scale, base_y + 48 * scale, f"+{format_int(summary.total_additions)} / -{format_int(summary.total_deletions)}", font=mono_small, fill=(240, 221, 216, 128), tracking=max(0, int(scale)))
+
+    draw.line((right_x, base_y - 4 * scale, right_x, base_y + 52 * scale), fill=(240, 221, 216, 32), width=1)
+    draw_text(draw, right_x - 10 * scale, base_y, f"{format_int(summary.total_commits)} commits", font=serif_mid, fill=(240, 221, 216, 255), align="right")
+    draw_text(draw, right_x - 10 * scale, base_y + 22 * scale, f"{format_int(summary.repo_count)} repos // {summary.active_days}/{summary.window_days} active", font=mono_small, fill=(240, 221, 216, 128), tracking=max(0, int(scale / 2)), align="right")
+    draw.line((right_x - 122 * scale, base_y + 38 * scale, right_x - 10 * scale, base_y + 38 * scale), fill=(240, 221, 216, 32), width=1)
+    draw_text(draw, right_x - 10 * scale, base_y + 48 * scale, f"{metrics.consistency_label} [{metrics.consistency_score:.2f}] // {metrics.temporal_bias}", font=mono_small, fill=(240, 221, 216, 128), tracking=max(0, int(scale / 2)), align="right")
+
+    noise = Image.effect_noise((size, size), 10.0).convert("L")
+    noise_rgba = Image.new("RGBA", (size, size), (240, 221, 216, 0))
+    noise_rgba.putalpha(noise.point(lambda value: int(value * 0.06)))
+    background.alpha_composite(noise_rgba)
+    return background.convert("RGB")
+
+
+def render_activity_gif(username: str, metrics: TemporalMetrics, summary: WeeklySummary) -> bytes:
+    frame_count = 16
+    frames = [render_activity_frame(username, metrics, summary, index, frame_count) for index in range(frame_count)]
+    palette_frames = [frame.convert("P", palette=Image.ADAPTIVE, colors=128) for frame in frames]
+    from io import BytesIO
+    output = BytesIO()
+    palette_frames[0].save(output, format="GIF", save_all=True, append_images=palette_frames[1:], duration=90, loop=0, optimize=True, disposal=2)
+    return output.getvalue()
+
+
+def render_activity_preview() -> str:
+    return """<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Temporal Activity Preview</title>
+  <style>
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #0d1117; color: #f0ddd8; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .frame { width: min(92vw, 680px); display: grid; gap: 14px; justify-items: center; }
+    img { width: 100%; height: auto; display: block; border: 1px solid rgba(240, 221, 216, 0.08); background: #0d1117; }
+    p { margin: 0; opacity: 0.7; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <img src="./activity-card.gif" alt="Temporal activity card preview">
+    <p>GitHub README asset preview</p>
+  </div>
+</body>
+</html>
+"""
 
 
 def busiest_day(commits: list[CommitRecord], window_end: datetime, window_days: int) -> tuple[date, RepoStats] | None:
@@ -788,13 +1157,13 @@ def render_stats(
     average_active_day = round(total_changed / active_days) if active_days else 0
     updated_at = now_utc().strftime("%Y-%m-%d %H:%M UTC")
     net_delta = total_additions - total_deletions
-    svg_reference = "./assets/activity-card.svg"
+    gif_reference = "./assets/activity-card.gif"
 
     lines = [
         "## Activity Dashboard",
         "",
         '<p align="center">',
-        f'  <img src="{svg_reference}" alt="Weekly code activity card" width="100%" />',
+        f'  <img src="{gif_reference}" alt="Temporal activity dashboard card" width="100%" />',
         "</p>",
         "",
     ]
@@ -812,7 +1181,7 @@ def render_stats(
     lines.extend(
         [
             "<details>",
-            "<summary>Open raw weekly breakdown</summary>",
+            "<summary>Open raw 7-day breakdown</summary>",
             "",
             f"<sub>Updated {updated_at}</sub>",
             "",
@@ -889,33 +1258,56 @@ def replace_stats_block(readme: str, block: str) -> str:
     return f"{readme}\n{replacement}\n"
 
 
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Generate GitHub profile activity assets.")
+    parser.add_argument("--github-username", help="GitHub username to analyze.")
+    parser.add_argument("--github-token", help="GitHub token to use for authenticated API requests.")
+    parser.add_argument("--update-readme", action="store_true", help="Rewrite the README stats block.")
+    return parser.parse_args(argv)
+
+
 def main() -> int:
+    args = parse_args()
+    if args.github_username:
+        os.environ["GH_USERNAME"] = args.github_username
+    if args.github_token:
+        os.environ["GH_TOKEN"] = args.github_token
+
     require_token_in_actions()
     username = infer_username()
     window_days = env_int("PROFILE_STATS_WINDOW_DAYS", 7)
+    temporal_weeks = env_int("PROFILE_STATS_TEMPORAL_WEEKS", 26)
     window_end = now_utc()
     window_start = start_of_utc_day(window_end.date() - timedelta(days=window_days - 1))
+    temporal_window_start = start_of_utc_day(window_end.date() - timedelta(days=(temporal_weeks * 7) - 1))
 
     collected = collect_stats(username, window_start, window_end)
-    if collected.warnings:
-        preview = "\n".join(collected.warnings[:5])
+    temporal_commits, temporal_warnings = collect_temporal_commits(username, temporal_window_start, window_end)
+    all_warnings = [*collected.warnings, *temporal_warnings]
+    if all_warnings:
+        preview = "\n".join(all_warnings[:5])
         print(f"Skipped some repositories:\n{preview}", file=sys.stderr)
 
     block = render_stats(username, window_start, window_end, window_days, collected)
-    activity_card = render_activity_card(window_days, collected, window_end)
+    weekly_summary = build_weekly_summary(collected, window_days)
+    temporal_metrics = build_temporal_metrics(temporal_commits, window_end, temporal_weeks)
+    activity_gif = render_activity_gif(username, temporal_metrics, weekly_summary)
+    activity_preview = render_activity_preview()
 
     if os.getenv("PROFILE_STATS_DRY_RUN", "").strip() == "1":
         print(block)
         return 0
 
-    if not README_PATH.exists():
-        raise GitHubError(f"README file not found at {README_PATH}")
-
-    current = README_PATH.read_text(encoding="utf-8")
-    updated = replace_stats_block(current, block)
-    SVG_PATH.parent.mkdir(parents=True, exist_ok=True)
-    SVG_PATH.write_text(activity_card, encoding="utf-8")
-    README_PATH.write_text(updated, encoding="utf-8")
+    GIF_PATH.parent.mkdir(parents=True, exist_ok=True)
+    HTML_PREVIEW_PATH.parent.mkdir(parents=True, exist_ok=True)
+    GIF_PATH.write_bytes(activity_gif)
+    HTML_PREVIEW_PATH.write_text(activity_preview, encoding="utf-8")
+    if args.update_readme:
+        if not README_PATH.exists():
+            raise GitHubError(f"README file not found at {README_PATH}")
+        current = README_PATH.read_text(encoding="utf-8")
+        updated = replace_stats_block(current, block)
+        README_PATH.write_text(updated, encoding="utf-8")
     return 0
 
 
