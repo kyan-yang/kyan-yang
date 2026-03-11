@@ -1,6 +1,6 @@
 <div align="center">
 
-## hey, i'm kyan
+hey, i'm kyan
 currently studying cs+math @ stanford, scouting @ afore capital, and automating as much of the tasks i can in my daily life.
 </div>
 
