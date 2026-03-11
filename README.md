@@ -1,11 +1,11 @@
 <div align="center">
-hey, i'm kyan (kye - an)
+hey, i'm kyan (kai - an)
 <br />
 <br />
 currently studying cs+math @ stanford, scouting @ afore capital, and automating as much of the tasks i can in my daily life.
 </div>
 
-<br />
+<br /><br />
 
 <!-- profile-stats:start -->
 <p align="center">
