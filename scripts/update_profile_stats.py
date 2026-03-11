@@ -617,13 +617,6 @@ def collect_stats(username: str, window_start: datetime, window_end: datetime) -
         warnings=warnings,
     )
 
-
-def render_coverage_note() -> str:
-    if os.getenv("GH_TOKEN", "").strip():
-        return "Coverage includes code-file changes in public repositories plus any additional repositories the workflow token can read."
-    return "Coverage is limited to code-file changes in public activity. Add PROFILE_STATS_TOKEN to include private and collaborator repositories."
-
-
 def last_n_dates(window_end: datetime, window_days: int) -> list[date]:
     final_day = window_end.astimezone(timezone.utc).date()
     return [final_day - timedelta(days=offset) for offset in range(window_days - 1, -1, -1)]
@@ -710,7 +703,6 @@ def render_activity_card(window_days: int, collected: CollectedStats, window_end
         '<rect x="1" y="1" width="1118" height="{height_minus}" rx="28" fill="url(#bg)" stroke="#273449"/>'.replace(
             "{height_minus}", str(height - 2)
         ),
-        '<text x="52" y="60" fill="#8fa7c6" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="18">Generated from GitHub commits</text>',
         '<text x="52" y="108" fill="#f5f7fb" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="42" font-weight="700">Weekly Code Activity</text>',
         f'<text x="52" y="144" fill="#8fa7c6" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="20">Last {window_days} calendar days, including today • updated {xml_escape(updated_label)}</text>',
     ]
@@ -759,13 +751,7 @@ def render_activity_card(window_days: int, collected: CollectedStats, window_end
                 ]
             )
 
-    footer_y = height - 28
-    svg.extend(
-        [
-            f'<text x="52" y="{footer_y}" fill="#6f87a7" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="16">Only code files are counted. Language detection is inferred from changed filenames and extensions.</text>',
-            "</svg>",
-        ]
-    )
+    svg.append("</svg>")
     return "\n".join(svg)
 
 
@@ -802,7 +788,6 @@ def render_stats(
     average_active_day = round(total_changed / active_days) if active_days else 0
     updated_at = now_utc().strftime("%Y-%m-%d %H:%M UTC")
     net_delta = total_additions - total_deletions
-    coverage_note = render_coverage_note()
     svg_reference = "./assets/activity-card.svg"
 
     lines = [
@@ -820,8 +805,6 @@ def render_stats(
                 f"<sub>Updated {updated_at}</sub>",
                 "",
                 f"No code-file commits found for `{username}` between {window_start.date()} and {window_end.date()}.",
-                "",
-                f"> {coverage_note}",
             ]
         )
         return "\n".join(lines)
@@ -888,8 +871,6 @@ def render_stats(
 
     lines.extend(
         [
-            "",
-            f"> {coverage_note}",
             "",
             "</details>",
         ]

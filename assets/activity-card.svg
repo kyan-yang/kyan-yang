@@ -12,7 +12,6 @@
 </linearGradient>
 </defs>
 <rect x="1" y="1" width="1118" height="770" rx="28" fill="url(#bg)" stroke="#273449"/>
-<text x="52" y="60" fill="#8fa7c6" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="18">Generated from GitHub commits</text>
 <text x="52" y="108" fill="#f5f7fb" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="42" font-weight="700">Weekly Code Activity</text>
 <text x="52" y="144" fill="#8fa7c6" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="20">Last 7 calendar days, including today • updated Mar 11, 2026</text>
 <rect x="52" y="178" width="220" height="86" rx="18" fill="#111c2f" stroke="#243349"/>
@@ -62,5 +61,4 @@
 <rect x="610" y="626" width="300" height="18" rx="9" fill="#1d2b41"/>
 <rect x="610" y="626" width="8" height="18" rx="9" fill="url(#accent)"/>
 <text x="940" y="648" fill="#f5f7fb" font-family="SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace" font-size="24">0.2%</text>
-<text x="52" y="744" fill="#6f87a7" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="16">Only code files are counted. Language detection is inferred from changed filenames and extensions.</text>
 </svg>

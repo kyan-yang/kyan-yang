@@ -16,7 +16,7 @@ Code, experiments, and a weekly snapshot of shipped work generated straight from
 <details>
 <summary>Open raw weekly breakdown</summary>
 
-<sub>Updated 2026-03-11 03:18 UTC</sub>
+<sub>Updated 2026-03-11 03:25 UTC</sub>
 
 - Added: +21,172
 - Deleted: -5,076
@@ -53,8 +53,6 @@ Code, experiments, and a weekly snapshot of shipped work generated straight from
 | `kyan-yang/instagram-scripts` | 1,308 | +1,189 | -119 | 4 |
 | `kyan-yang/kyan-yang` | 1,166 | +1,056 | -110 | 5 |
 | `kyan-yang/kyanyang.com` | 18 | +12 | -6 | 5 |
-
-> Coverage includes code-file changes in public repositories plus any additional repositories the workflow token can read.
 
 </details>
 <!-- profile-stats:end -->
