@@ -9,7 +9,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from collections import defaultdict
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
@@ -19,6 +19,91 @@ README_PATH = Path(os.getenv("PROFILE_STATS_README", "README.md"))
 REQUEST_TIMEOUT_SECONDS = 30
 START_MARKER = "<!-- profile-stats:start -->"
 END_MARKER = "<!-- profile-stats:end -->"
+DEFAULT_CODE_EXTENSIONS = {
+    ".asm",
+    ".astro",
+    ".bash",
+    ".bat",
+    ".c",
+    ".cc",
+    ".clj",
+    ".cljs",
+    ".cmake",
+    ".cpp",
+    ".cs",
+    ".css",
+    ".cxx",
+    ".dart",
+    ".elm",
+    ".erl",
+    ".ex",
+    ".exs",
+    ".go",
+    ".gql",
+    ".graphql",
+    ".groovy",
+    ".h",
+    ".hpp",
+    ".hrl",
+    ".hs",
+    ".html",
+    ".java",
+    ".jl",
+    ".js",
+    ".jsx",
+    ".kt",
+    ".kts",
+    ".less",
+    ".lua",
+    ".m",
+    ".mm",
+    ".nim",
+    ".php",
+    ".pl",
+    ".proto",
+    ".ps1",
+    ".py",
+    ".r",
+    ".rb",
+    ".rs",
+    ".sass",
+    ".scala",
+    ".scss",
+    ".sh",
+    ".sol",
+    ".sql",
+    ".svelte",
+    ".swift",
+    ".tcl",
+    ".tf",
+    ".tsx",
+    ".ts",
+    ".tsx",
+    ".vue",
+    ".xml",
+    ".yaml.tmpl",
+    ".yml.tmpl",
+    ".zig",
+    ".zsh",
+}
+DEFAULT_CODE_FILENAMES = {
+    "build",
+    "build.bazel",
+    "brewfile",
+    "cmakelists.txt",
+    "containerfile",
+    "gemfile",
+    "jenkinsfile",
+    "justfile",
+    "makefile",
+    "meson.build",
+    "podfile",
+    "procfile",
+    "rakefile",
+    "tiltfile",
+    "vagrantfile",
+    "workspace",
+}
 
 
 @dataclass
@@ -48,8 +133,17 @@ class CommitRecord:
 @dataclass
 class CollectedStats:
     per_repo: dict[str, RepoStats]
+    per_language: dict[str, RepoStats]
     commits: list[CommitRecord]
     warnings: list[str]
+
+
+@dataclass
+class CommitSummary:
+    additions: int = 0
+    deletions: int = 0
+    included_files: int = 0
+    per_language: dict[str, RepoStats] = field(default_factory=dict)
 
 
 class GitHubError(RuntimeError):
@@ -95,6 +189,146 @@ def env_int(name: str, default: int) -> int:
 def excluded_repos() -> set[str]:
     raw = os.getenv("PROFILE_STATS_EXCLUDED_REPOS", "")
     return {item.strip().lower() for item in raw.split(",") if item.strip()}
+
+
+def env_csv_set(name: str) -> set[str]:
+    raw = os.getenv(name, "")
+    return {item.strip().lower() for item in raw.split(",") if item.strip()}
+
+
+def code_extensions() -> set[str]:
+    configured = env_csv_set("PROFILE_STATS_CODE_EXTENSIONS")
+    return configured or DEFAULT_CODE_EXTENSIONS
+
+
+def code_filenames() -> set[str]:
+    configured = env_csv_set("PROFILE_STATS_CODE_FILENAMES")
+    return configured or DEFAULT_CODE_FILENAMES
+
+
+def is_code_file(path: str) -> bool:
+    normalized = path.strip().lower()
+    if not normalized:
+        return False
+
+    filename = normalized.rsplit("/", 1)[-1]
+    if filename in code_filenames():
+        return True
+    if filename == "dockerfile" or filename.startswith("dockerfile."):
+        return True
+
+    suffixes = Path(filename).suffixes
+    if not suffixes:
+        return False
+
+    joined_suffixes = "".join(suffixes)
+    if joined_suffixes in code_extensions():
+        return True
+    return suffixes[-1] in code_extensions()
+
+
+def detect_language(path: str) -> str | None:
+    normalized = path.strip().lower()
+    if not normalized:
+        return None
+
+    filename = normalized.rsplit("/", 1)[-1]
+    if filename in {"build", "build.bazel", "workspace"}:
+        return "Starlark"
+    if filename == "cmakelists.txt" or filename.endswith(".cmake"):
+        return "CMake"
+    if filename in {"makefile"}:
+        return "Makefile"
+    if filename in {"dockerfile", "containerfile"} or filename.startswith("dockerfile."):
+        return "Dockerfile"
+    if filename in {"gemfile", "rakefile", "podfile"}:
+        return "Ruby"
+    if filename == "procfile":
+        return "Procfile"
+    if filename == "justfile":
+        return "Just"
+    if filename == "tiltfile":
+        return "Starlark"
+    if filename == "jenkinsfile":
+        return "Groovy"
+    if filename == "brewfile":
+        return "Ruby"
+    if filename == "vagrantfile":
+        return "Ruby"
+    if filename == "meson.build":
+        return "Meson"
+
+    suffixes = Path(filename).suffixes
+    joined_suffixes = "".join(suffixes)
+    extension = joined_suffixes if joined_suffixes in code_extensions() else (suffixes[-1] if suffixes else "")
+
+    extension_map = {
+        ".asm": "Assembly",
+        ".astro": "Astro",
+        ".bash": "Shell",
+        ".bat": "Batchfile",
+        ".c": "C",
+        ".cc": "C++",
+        ".clj": "Clojure",
+        ".cljs": "ClojureScript",
+        ".cmake": "CMake",
+        ".cpp": "C++",
+        ".cs": "C#",
+        ".css": "CSS",
+        ".cxx": "C++",
+        ".dart": "Dart",
+        ".elm": "Elm",
+        ".erl": "Erlang",
+        ".ex": "Elixir",
+        ".exs": "Elixir",
+        ".go": "Go",
+        ".gql": "GraphQL",
+        ".graphql": "GraphQL",
+        ".groovy": "Groovy",
+        ".h": "C/C++ Header",
+        ".hpp": "C++ Header",
+        ".hrl": "Erlang",
+        ".hs": "Haskell",
+        ".html": "HTML",
+        ".java": "Java",
+        ".jl": "Julia",
+        ".js": "JavaScript",
+        ".jsx": "JavaScript",
+        ".kt": "Kotlin",
+        ".kts": "Kotlin",
+        ".less": "Less",
+        ".lua": "Lua",
+        ".m": "Objective-C",
+        ".mm": "Objective-C++",
+        ".nim": "Nim",
+        ".php": "PHP",
+        ".pl": "Perl",
+        ".proto": "Protocol Buffers",
+        ".ps1": "PowerShell",
+        ".py": "Python",
+        ".r": "R",
+        ".rb": "Ruby",
+        ".rs": "Rust",
+        ".sass": "Sass",
+        ".scala": "Scala",
+        ".scss": "SCSS",
+        ".sh": "Shell",
+        ".sol": "Solidity",
+        ".sql": "SQL",
+        ".svelte": "Svelte",
+        ".swift": "Swift",
+        ".tcl": "Tcl",
+        ".tf": "Terraform",
+        ".ts": "TypeScript",
+        ".tsx": "TypeScript",
+        ".vue": "Vue",
+        ".xml": "XML",
+        ".yaml.tmpl": "YAML Template",
+        ".yml.tmpl": "YAML Template",
+        ".zig": "Zig",
+        ".zsh": "Shell",
+    }
+    return extension_map.get(extension)
 
 
 def build_headers() -> dict[str, str]:
@@ -270,14 +504,34 @@ def list_recent_commits(owner: str, repo: str, username: str, window_start: date
     return commits
 
 
-def commit_stats(owner: str, repo: str, sha: str) -> tuple[int, int]:
+def commit_stats(owner: str, repo: str, sha: str) -> CommitSummary:
     details, _ = api_get(f"/repos/{owner}/{repo}/commits/{sha}")
     if not isinstance(details, dict):
         raise GitHubError(f"Expected commit details for {owner}/{repo}@{sha}")
-    stats = details.get("stats") or {}
-    additions = int(stats.get("additions", 0))
-    deletions = int(stats.get("deletions", 0))
-    return additions, deletions
+
+    files = details.get("files") or []
+    if not isinstance(files, list):
+        raise GitHubError(f"Expected changed files for {owner}/{repo}@{sha}")
+
+    summary = CommitSummary()
+    for file_info in files:
+        if not isinstance(file_info, dict):
+            continue
+        filename = str(file_info.get("filename", "")).strip()
+        if not is_code_file(filename):
+            continue
+        additions = int(file_info.get("additions", 0))
+        deletions = int(file_info.get("deletions", 0))
+        summary.additions += additions
+        summary.deletions += deletions
+        summary.included_files += 1
+
+        language = detect_language(filename) or "Other"
+        language_stats = summary.per_language.setdefault(language, RepoStats())
+        language_stats.additions += additions
+        language_stats.deletions += deletions
+
+    return summary
 
 
 def extract_commit_datetime(commit: dict[str, object]) -> datetime:
@@ -299,6 +553,7 @@ def extract_commit_datetime(commit: dict[str, object]) -> datetime:
 def collect_stats(username: str, window_start: datetime, window_end: datetime) -> CollectedStats:
     repos = candidate_repositories(username, window_start)
     per_repo: dict[str, RepoStats] = defaultdict(RepoStats)
+    per_language: dict[str, RepoStats] = defaultdict(RepoStats)
     commit_records: list[CommitRecord] = []
     seen_commits: set[str] = set()
     warnings: list[str] = []
@@ -321,31 +576,43 @@ def collect_stats(username: str, window_start: datetime, window_end: datetime) -
                 continue
             seen_commits.add(commit_key)
 
-            additions, deletions = commit_stats(owner, repo, sha)
+            summary = commit_stats(owner, repo, sha)
+            if summary.included_files == 0:
+                continue
             committed_at = extract_commit_datetime(commit)
 
             stats = per_repo[full_name]
-            stats.additions += additions
-            stats.deletions += deletions
+            stats.additions += summary.additions
+            stats.deletions += summary.deletions
             stats.commits += 1
+            for language, language_stats in summary.per_language.items():
+                aggregate = per_language[language]
+                aggregate.additions += language_stats.additions
+                aggregate.deletions += language_stats.deletions
+                aggregate.commits += 1
 
             commit_records.append(
                 CommitRecord(
                     repo=full_name,
                     sha=sha,
                     committed_at=committed_at,
-                    additions=additions,
-                    deletions=deletions,
+                    additions=summary.additions,
+                    deletions=summary.deletions,
                 )
             )
 
-    return CollectedStats(per_repo=dict(per_repo), commits=commit_records, warnings=warnings)
+    return CollectedStats(
+        per_repo=dict(per_repo),
+        per_language=dict(per_language),
+        commits=commit_records,
+        warnings=warnings,
+    )
 
 
 def render_coverage_note() -> str:
     if os.getenv("GH_TOKEN", "").strip():
-        return "Coverage includes public repositories plus any additional repositories the workflow token can read."
-    return "Coverage is limited to public activity. Add PROFILE_STATS_TOKEN to include private and collaborator repositories."
+        return "Coverage includes code-file changes in public repositories plus any additional repositories the workflow token can read."
+    return "Coverage is limited to code-file changes in public activity. Add PROFILE_STATS_TOKEN to include private and collaborator repositories."
 
 
 def last_n_dates(window_end: datetime, window_days: int) -> list[date]:
@@ -383,7 +650,7 @@ def render_daily_chart(commits: list[CommitRecord], window_end: datetime, window
             bar = "#" * filled
         commit_label = f"{stats.commits} commit{'s' if stats.commits != 1 else ''}"
         lines.append(
-            f"{day.strftime('%m-%d')} | {bar:<18} {format_int(stats.changed):>7} lines | {commit_label}"
+            f"{day.strftime('%m-%d')} | {bar:<18} {format_int(stats.changed):>7} code lines | {commit_label}"
         )
 
     return "\n".join(lines)
@@ -411,6 +678,7 @@ def render_stats(
     collected: CollectedStats,
 ) -> str:
     per_repo = collected.per_repo
+    per_language = collected.per_language
     commits = collected.commits
     total_additions = sum(repo.additions for repo in per_repo.values())
     total_deletions = sum(repo.deletions for repo in per_repo.values())
@@ -447,15 +715,15 @@ def render_stats(
         [
             "| Metric | Value |",
             "| --- | ---: |",
-            f"| Lines changed | {format_int(total_changed)} |",
+            f"| Code lines changed | {format_int(total_changed)} |",
             f"| Added | +{format_int(total_additions)} |",
             f"| Deleted | -{format_int(total_deletions)} |",
             f"| Net delta | {'+' if net_delta >= 0 else '-'}{format_int(abs(net_delta))} |",
-            f"| Commits | {format_int(total_commits)} |",
+            f"| Code-touching commits | {format_int(total_commits)} |",
             f"| Repositories touched | {format_int(repo_count)} |",
             f"| Active days | {format_int(active_days)} / {format_int(window_days)} |",
-            f"| Average lines per commit | {format_int(average_changed)} |",
-            f"| Average lines per active day | {format_int(average_active_day)} |",
+            f"| Average code lines per commit | {format_int(average_changed)} |",
+            f"| Average code lines per active day | {format_int(average_active_day)} |",
             "",
             "### Daily Throughput",
             "",
@@ -472,7 +740,7 @@ def render_stats(
     if busiest:
         day, stats = busiest
         lines.append(
-            f"- Busiest day: `{day.isoformat()}` with {format_int(stats.changed)} lines changed across {format_int(stats.commits)} commit{'s' if stats.commits != 1 else ''}"
+            f"- Busiest day: `{day.isoformat()}` with {format_int(stats.changed)} code lines changed across {format_int(stats.commits)} commit{'s' if stats.commits != 1 else ''}"
         )
 
     biggest = largest_commit(commits)
@@ -486,13 +754,36 @@ def render_stats(
         key=lambda item: (item[1].changed, item[1].commits, item[0]),
         reverse=True,
     )[:5]
+    top_languages = sorted(
+        per_language.items(),
+        key=lambda item: (item[1].changed, item[1].additions, item[0]),
+        reverse=True,
+    )[:8]
 
     lines.extend(
         [
             "",
+            "### Language Breakdown",
+            "",
+            "| Language | Code lines | Share | Added | Deleted |",
+            "| --- | ---: | ---: | ---: | ---: |",
+        ]
+    )
+
+    for language, stats in top_languages:
+        share = (stats.changed / total_changed) * 100 if total_changed else 0
+        lines.append(
+            f"| {language} | {format_int(stats.changed)} | {share:.1f}% | +{format_int(stats.additions)} | -{format_int(stats.deletions)} |"
+        )
+
+    lines.extend(
+        [
+            "",
+            "> Language detection is inferred from changed filenames and extensions.",
+            "",
             "### Top Repositories",
             "",
-            "| Repository | Lines | Added | Deleted | Commits |",
+            "| Repository | Code lines | Added | Deleted | Commits |",
             "| --- | ---: | ---: | ---: | ---: |",
         ]
     )

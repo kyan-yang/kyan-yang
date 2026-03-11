@@ -59,7 +59,7 @@ A live weekly snapshot of recent engineering activity, refreshed automatically f
 <summary>How this profile works</summary>
 
 - A GitHub Actions workflow refreshes this dashboard every day.
-- The updater script totals additions, deletions, commits, active days, and the repositories touched most recently.
+- The updater script totals code-only additions, deletions, commits, active days, a language breakdown, and the repositories touched most recently.
 - Private repositories are included when the workflow can read them through `PROFILE_STATS_TOKEN`.
 
 </details>
