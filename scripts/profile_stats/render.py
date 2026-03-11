@@ -5,7 +5,7 @@ import math
 from datetime import datetime, timezone
 
 from .config import END_MARKER, START_MARKER
-from .models import CollectedStats, CommitRecord, DashboardCardData
+from .models import CollectedStats, CommitRecord, DashboardCardData, fake_dev_card
 from .stats import busiest_day, daily_rollup, largest_commit
 from .github_api import now_utc
 
@@ -55,22 +55,7 @@ def render_daily_chart(commits: list[CommitRecord], window_end: datetime, window
 
 def render_activity_svg(card: DashboardCardData | None = None) -> str:
     if card is None:
-        card = DashboardCardData(
-            identifier="DASH_IDX_04 // ALPHA",
-            runtime_status="OPTIMIZED",
-            total_commits=182,
-            total_additions=2_400_000,
-            total_deletions=1_100_000,
-            repo_count=12,
-            window_days=154,
-            heatmap_levels=[(index % 4) for index in range(154)],
-            language_segments=[
-                ("TypeScript", 0.42),
-                ("Python", 0.28),
-                ("Go", 0.18),
-                ("Other", 0.12),
-            ],
-        )
+        card = fake_dev_card()
 
     def arc_path(cx: float, cy: float, radius: float, start: float, end: float) -> str:
         start_x = cx + radius * math.cos(start)
@@ -110,7 +95,7 @@ def render_activity_svg(card: DashboardCardData | None = None) -> str:
     palette = ["#F0DDD8", "#C47A7F", "#883E43", "#5C262A"]
     donut_paths: list[str] = []
     legend_rows: list[str] = []
-    cx = 332
+    cx = 271
     cy = 151
     radius = 38
     offset = -math.pi / 2
@@ -124,9 +109,9 @@ def render_activity_svg(card: DashboardCardData | None = None) -> str:
             )
         label_y = 124 + index * 18
         legend_rows.append(
-            f'<circle cx="389" cy="{label_y}" r="4" fill="{color}"></circle>'
-            f'<text x="400" y="{label_y + 2}" class="legend-label">{xml_escape(language[:11])}</text>'
-            f'<text x="452" y="{label_y + 2}" class="legend-value">{format_percent(share * 100)}</text>'
+            f'<circle cx="326" cy="{label_y}" r="4" fill="{color}"></circle>'
+            f'<text x="337" y="{label_y + 2}" class="legend-label">{xml_escape(language[:11])}</text>'
+            f'<text x="441" y="{label_y + 2}" class="legend-value">{format_percent(share * 100)}</text>'
         )
         offset = end
 
@@ -169,27 +154,20 @@ def render_activity_svg(card: DashboardCardData | None = None) -> str:
   <line x1="0" y1="240.5" x2="480" y2="240.5" stroke="rgba(240, 221, 216, 0.12)" stroke-opacity="0.4"/>
 
   <line x1="24" y1="81.5" x2="456" y2="81.5" stroke="rgba(240, 221, 216, 0.12)"/>
-  <rect x="24.5" y="29.5" width="112" height="18" stroke="rgba(240, 221, 216, 0.12)"/>
-  <text x="33" y="41" class="mono tiny">SYSTEM_EXPANSION</text>
-  <text x="24" y="65" class="mono small" font-weight="700">{xml_escape(card.identifier)}</text>
+  <text x="24" y="54" class="mono small" font-weight="700">Past 14 days activity</text>
 
-  <text x="456" y="35" class="mono tiny" text-anchor="end">RUNTIME STATUS</text>
-  <text x="456" y="52" class="mono small" font-weight="700" fill="#C47A7F" text-anchor="end">{xml_escape(card.runtime_status)}</text>
-
-  <text x="122" y="114" class="mono tiny" text-anchor="middle">IN THE PAST 14 DAYS</text>
-  <text x="122" y="178" class="serif" font-size="66" font-style="italic" text-anchor="middle">{format_int(card.total_commits)}</text>
+  <text x="117" y="170" class="serif" font-size="66" font-style="italic" text-anchor="middle">{format_int(card.total_commits)}</text>
   <text x="122" y="206" class="mono tiny" text-anchor="middle" letter-spacing="3.2px">COMMITS</text>
 
-  <line x1="248.5" y1="102" x2="248.5" y2="211" stroke="rgba(240, 221, 216, 0.12)"/>
+  <line x1="195.5" y1="102" x2="195.5" y2="211" stroke="rgba(240, 221, 216, 0.12)"/>
   <circle cx="{cx}" cy="{cy}" r="{radius}" stroke="rgba(240, 221, 216, 0.08)" stroke-width="17"/>
   {''.join(donut_paths)}
   <circle cx="{cx}" cy="{cy}" r="22" fill="#0D1117"/>
   <text x="{cx}" y="{cy - 4}" class="mono" font-size="10" text-anchor="middle">LANG</text>
   <text x="{cx}" y="{cy + 13}" class="mono tiny" text-anchor="middle">{len(card.language_segments)} MIX</text>
-  <text x="389" y="110" class="mono tiny">LANGUAGE</text>
+  <text x="326" y="110" class="mono tiny">LANGUAGE</text>
   {''.join(legend_rows)}
 
-  <text x="24" y="240" class="mono tiny">CONTRIBUTION_MAP / {card.window_days}_DAY_WINDOW</text>
   {''.join(heatmap_cells)}
 
   <line x1="24" y1="410.5" x2="456" y2="410.5" stroke="rgba(240, 221, 216, 0.12)"/>

@@ -86,18 +86,6 @@ def consistency_label(score: float) -> str:
     return "Epsilon"
 
 
-def runtime_status(score: float) -> str:
-    if score >= 0.92:
-        return "OPTIMIZED"
-    if score >= 0.8:
-        return "STABLE"
-    if score >= 0.65:
-        return "CALIBRATED"
-    if score >= 0.45:
-        return "VARIABLE"
-    return "SPARSE"
-
-
 def language_breakdown(per_language: dict[str, RepoStats], limit: int = 4) -> list[tuple[str, int]]:
     ranked = sorted(
         ((language, stats.changed) for language, stats in per_language.items() if stats.changed > 0),
@@ -241,7 +229,6 @@ def build_weekly_summary(collected: CollectedStats, window_days: int) -> WeeklyS
 
 
 def build_dashboard_card(
-    username: str,
     summary: WeeklySummary,
     fortnight_collected: CollectedStats,
     temporal_metrics: TemporalMetrics,
@@ -260,13 +247,10 @@ def build_dashboard_card(
             heatmap_levels.append(3)
 
     return DashboardCardData(
-        identifier=f"{username.upper().replace('-', '_')} // {temporal_metrics.consistency_label.upper()}",
-        runtime_status=runtime_status(temporal_metrics.consistency_score),
         total_commits=len(fortnight_collected.commits),
         total_additions=summary.total_additions,
         total_deletions=summary.total_deletions,
         repo_count=len(fortnight_collected.per_repo),
-        window_days=temporal_metrics.weeks * 7,
         heatmap_levels=heatmap_levels,
         language_segments=render_language_donut(fortnight_collected.per_language),
     )

@@ -61,6 +61,12 @@ Regenerate assets and README locally:
 python3 scripts/update_profile_stats.py --update-readme
 ```
 
+Local dev (fake data, no API):
+
+```bash
+python3 scripts/update_profile_stats.py --dev --update-readme
+```
+
 Use lower API limits when testing network behavior:
 
 ```bash

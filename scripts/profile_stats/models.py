@@ -97,13 +97,10 @@ class WeeklySummary:
 
 @dataclass
 class DashboardCardData:
-    identifier: str
-    runtime_status: str
     total_commits: int
     total_additions: int
     total_deletions: int
     repo_count: int
-    window_days: int
     heatmap_levels: list[int]
     language_segments: list[tuple[str, float]]
 
@@ -114,3 +111,41 @@ class GitHubError(RuntimeError):
 
 class RateLimitError(GitHubError):
     pass
+
+
+def fake_dev_card() -> DashboardCardData:
+    """Sample data for local dev/testing without hitting the GitHub API."""
+    return DashboardCardData(
+        total_commits=182,
+        total_additions=2_400_000,
+        total_deletions=1_100_000,
+        repo_count=12,
+        heatmap_levels=[(index % 4) for index in range(154)],
+        language_segments=[
+            ("TypeScript", 0.42),
+            ("Python", 0.28),
+            ("Go", 0.18),
+            ("Other", 0.12),
+        ],
+    )
+
+
+def fake_dev_collected(window_end=None) -> CollectedStats:
+    """Sample CollectedStats for local dev/testing. Matches fake_dev_card totals."""
+    from datetime import datetime, timezone
+
+    if window_end is None:
+        window_end = datetime.now(timezone.utc)
+    base = datetime(
+        window_end.year, window_end.month, window_end.day, 12, 0, 0, tzinfo=timezone.utc
+    )
+    repos = {
+        "owner/repo-a": RepoStats(additions=1_200_000, deletions=400_000, commits=80),
+        "owner/repo-b": RepoStats(additions=800_000, deletions=500_000, commits=60),
+        "owner/repo-c": RepoStats(additions=400_000, deletions=200_000, commits=42),
+    }
+    commits = [
+        CommitRecord("owner/repo-a", "abc1234", base, 15000, 5000),
+        CommitRecord("owner/repo-b", "def5678", base, 8000, 3000),
+    ]
+    return CollectedStats(per_repo=repos, per_language={}, commits=commits, warnings=[])
