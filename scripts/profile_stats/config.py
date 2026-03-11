@@ -30,8 +30,9 @@ load_dotenv()
 
 API_ROOT = "https://api.github.com"
 README_PATH = Path(os.getenv("PROFILE_STATS_README", "README.md"))
-SVG_PATH = Path(os.getenv("PROFILE_STATS_IMAGE", "assets/activity-card.svg"))
+IMAGE_PATH = Path(os.getenv("PROFILE_STATS_IMAGE", "assets/activity-card.png"))
 HTML_PREVIEW_PATH = Path(os.getenv("PROFILE_STATS_HTML_PREVIEW", "assets/activity-card-preview.html"))
+REFERENCE_HTML_PATH = Path(os.getenv("PROFILE_STATS_REFERENCE_HTML", "assets/reference.html"))
 REQUEST_TIMEOUT_SECONDS = 30
 START_MARKER = "<!-- profile-stats:start -->"
 END_MARKER = "<!-- profile-stats:end -->"
@@ -218,6 +219,13 @@ def env_int(name: str, default: int) -> int:
         return int(raw)
     except ValueError as exc:
         raise GitHubError(f"{name} must be an integer, got {raw!r}") from exc
+
+
+def export_scale() -> int:
+    value = env_int("PROFILE_STATS_EXPORT_SCALE", 3)
+    if value < 1:
+        raise GitHubError(f"PROFILE_STATS_EXPORT_SCALE must be at least 1, got {value!r}")
+    return value
 
 
 def env_csv_set(name: str) -> set[str]:

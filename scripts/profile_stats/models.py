@@ -68,11 +68,16 @@ class WeeklySummary:
 @dataclass
 class DashboardCardData:
     window_days: int
+    active_days: int
     total_commits: int
     total_additions: int
     total_deletions: int
     repo_count: int
     language_segments: list[tuple[str, float]]
+
+    @property
+    def total_changed(self) -> int:
+        return self.total_additions + self.total_deletions
 
 
 class GitHubError(RuntimeError):
@@ -87,6 +92,7 @@ def fake_dev_card(window_days: int = 22 * 7) -> DashboardCardData:
     """Sample data for local dev/testing without hitting the GitHub API."""
     return DashboardCardData(
         window_days=window_days,
+        active_days=118,
         total_commits=182,
         total_additions=2_400_000,
         total_deletions=1_100_000,
@@ -102,7 +108,7 @@ def fake_dev_card(window_days: int = 22 * 7) -> DashboardCardData:
 
 def fake_dev_collected(window_end=None) -> CollectedStats:
     """Sample CollectedStats for local dev/testing. Matches fake_dev_card totals."""
-    from datetime import datetime, timezone
+    from datetime import datetime, timedelta, timezone
 
     if window_end is None:
         window_end = datetime.now(timezone.utc)
@@ -115,7 +121,19 @@ def fake_dev_collected(window_end=None) -> CollectedStats:
         "owner/repo-c": RepoStats(additions=400_000, deletions=200_000, commits=42),
     }
     commits = [
-        CommitRecord("owner/repo-a", "abc1234", base, 15000, 5000),
-        CommitRecord("owner/repo-b", "def5678", base, 8000, 3000),
+        CommitRecord(
+            repo="owner/repo-a" if offset % 3 == 0 else "owner/repo-b" if offset % 3 == 1 else "owner/repo-c",
+            sha=f"fake{offset:04d}",
+            committed_at=base - timedelta(days=offset),
+            additions=15000 if offset % 2 == 0 else 8000,
+            deletions=5000 if offset % 2 == 0 else 3000,
+        )
+        for offset in range(118)
     ]
-    return CollectedStats(per_repo=repos, per_language={}, commits=commits, warnings=[])
+    per_language = {
+        "TypeScript": RepoStats(additions=1_240_000, deletions=230_000, commits=102),
+        "Python": RepoStats(additions=620_000, deletions=360_000, commits=46),
+        "Go": RepoStats(additions=390_000, deletions=240_000, commits=21),
+        "Other": RepoStats(additions=150_000, deletions=270_000, commits=13),
+    }
+    return CollectedStats(per_repo=repos, per_language=per_language, commits=commits, warnings=[])

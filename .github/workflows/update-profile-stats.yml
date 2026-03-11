@@ -28,6 +28,12 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Install rendering dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install playwright==1.58.0
+          playwright install --with-deps chromium
+
       - name: Validate workflow configuration
         env:
           GH_TOKEN: ${{ secrets.PROFILE_STATS_TOKEN }}
@@ -49,13 +55,13 @@ jobs:
 
       - name: Commit README changes
         run: |
-          if git diff --quiet README.md assets/activity-card.svg assets/activity-card-preview.html; then
-            echo "README, SVG card, and preview are already up to date."
+          if git diff --quiet README.md assets/activity-card.png assets/activity-card-preview.html; then
+            echo "README, PNG card, and preview are already up to date."
             exit 0
           fi
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add README.md assets/activity-card.svg assets/activity-card-preview.html
+          git add README.md assets/activity-card.png assets/activity-card-preview.html
           git commit -m "chore: update profile stats"
           git push

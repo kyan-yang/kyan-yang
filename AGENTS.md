@@ -7,7 +7,7 @@ This repository generates a GitHub profile activity dashboard and writes the res
 Primary outputs:
 
 - `README.md`
-- `assets/activity-card.svg`
+- `assets/activity-card.png`
 - `assets/activity-card-preview.html`
 
 Primary entrypoint:
@@ -34,7 +34,7 @@ Primary entrypoint:
 ## Working Rules
 
 - Keep `scripts/update_profile_stats.py` as a thin wrapper. Put new business logic in `scripts/profile_stats/`.
-- Treat `README.md`, `assets/activity-card.svg`, and `assets/activity-card-preview.html` as generated artifacts.
+- Treat `README.md`, `assets/activity-card.png`, and `assets/activity-card-preview.html` as generated artifacts.
 - Do not hand-edit the profile stats block between `<!-- profile-stats:start -->` and `<!-- profile-stats:end -->` unless the task explicitly requires changing renderer output.
 - Prefer changing the renderer or stats pipeline, then regenerating outputs.
 - Keep the code dependency-light. The current implementation is standard library only.
@@ -77,7 +77,7 @@ PROFILE_STATS_MAX_REPO_PAGES=1 PROFILE_STATS_MAX_COMMIT_PAGES=1 PROFILE_STATS_DR
 ## Change Guidance
 
 - If you change stat semantics, check both the README block and the SVG card output.
-- If you change rendering, verify both `assets/activity-card.svg` and `assets/activity-card-preview.html`.
+- If you change rendering, verify both `assets/activity-card.png` and `assets/activity-card-preview.html`.
 - If you add new environment variables, define them in `scripts/profile_stats/config.py`.
 - If you add new derived metrics, keep aggregation in `scripts/profile_stats/stats.py` and presentation formatting in `scripts/profile_stats/render.py`.
 - If you change GitHub collection behavior, prefer one discovery pass and reuse collected data across windows.
@@ -87,7 +87,7 @@ PROFILE_STATS_MAX_REPO_PAGES=1 PROFILE_STATS_MAX_COMMIT_PAGES=1 PROFILE_STATS_DR
 
 - The scheduled workflow is `.github/workflows/update-profile-stats.yml`.
 - It runs `python3 scripts/update_profile_stats.py --update-readme`.
-- The workflow commits changes only when `README.md`, `assets/activity-card.svg`, or `assets/activity-card-preview.html` differ.
+- The workflow commits changes only when `README.md`, `assets/activity-card.png`, or `assets/activity-card-preview.html` differ.
 
 
 ## Before Finishing

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, timezone
 
 from .models import CollectedStats, CommitRecord, DashboardCardData, RepoStats, WeeklySummary
 
@@ -102,44 +102,10 @@ def build_dashboard_card(
 ) -> DashboardCardData:
     return DashboardCardData(
         window_days=summary.window_days,
-        total_commits=len(card_collected.commits),
+        active_days=summary.active_days,
+        total_commits=summary.total_commits,
         total_additions=summary.total_additions,
         total_deletions=summary.total_deletions,
-        repo_count=len(card_collected.per_repo),
+        repo_count=summary.repo_count,
         language_segments=render_language_donut(card_collected.per_language),
     )
-
-
-def last_n_dates(window_end: datetime, window_days: int) -> list[date]:
-    final_day = window_end.astimezone(timezone.utc).date()
-    return [final_day - timedelta(days=offset) for offset in range(window_days - 1, -1, -1)]
-
-
-def daily_rollup(commits: list[CommitRecord], window_end: datetime, window_days: int) -> list[tuple[date, RepoStats]]:
-    days = last_n_dates(window_end, window_days)
-    rollup: dict[date, RepoStats] = {day: RepoStats() for day in days}
-
-    for commit in commits:
-        day = commit.committed_at.astimezone(timezone.utc).date()
-        if day not in rollup:
-            continue
-        stats = rollup[day]
-        stats.additions += commit.additions
-        stats.deletions += commit.deletions
-        stats.commits += 1
-
-    return [(day, rollup[day]) for day in days]
-
-
-def busiest_day(commits: list[CommitRecord], window_end: datetime, window_days: int) -> tuple[date, RepoStats] | None:
-    rows = daily_rollup(commits, window_end, window_days)
-    active_rows = [(day, stats) for day, stats in rows if stats.commits]
-    if not active_rows:
-        return None
-    return max(active_rows, key=lambda item: (item[1].changed, item[1].commits, item[0]))
-
-
-def largest_commit(commits: list[CommitRecord]) -> CommitRecord | None:
-    if not commits:
-        return None
-    return max(commits, key=lambda item: (item.changed, item.additions, item.repo, item.sha))

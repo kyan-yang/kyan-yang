@@ -7,10 +7,10 @@ import os
 import sys
 from datetime import timedelta
 
-from profile_stats.config import HTML_PREVIEW_PATH, README_PATH, SVG_PATH, env_int
+from profile_stats.config import HTML_PREVIEW_PATH, IMAGE_PATH, README_PATH, env_int
 from profile_stats.github_api import collect_activity, infer_username, now_utc, require_token_in_actions
-from profile_stats.models import GitHubError, fake_dev_card, fake_dev_collected
-from profile_stats.render import render_activity_preview, render_activity_svg, render_stats, replace_stats_block
+from profile_stats.models import GitHubError, fake_dev_collected
+from profile_stats.render import render_activity_png, render_activity_preview, render_stats, replace_stats_block
 from profile_stats.stats import aggregate_stats, build_dashboard_card, build_weekly_summary, start_of_utc_day
 
 
@@ -40,7 +40,8 @@ def main() -> int:
 
     if args.dev:
         collected = fake_dev_collected(window_end)
-        card = fake_dev_card(window_days)
+        card_summary = build_weekly_summary(collected, window_days)
+        card = build_dashboard_card(card_summary, collected)
         if os.getenv("PROFILE_STATS_DRY_RUN", "").strip() != "1":
             print("Dev mode: using fake data, skipping GitHub API", file=sys.stderr)
     else:
@@ -55,16 +56,16 @@ def main() -> int:
         card = build_dashboard_card(card_summary, collected)
 
     block = render_stats(username, window_start, window_end, window_days, collected)
-    activity_svg = render_activity_svg(card)
+    activity_png = render_activity_png(card)
     activity_preview = render_activity_preview(card)
 
     if os.getenv("PROFILE_STATS_DRY_RUN", "").strip() == "1":
         print(block)
         return 0
 
-    SVG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    IMAGE_PATH.parent.mkdir(parents=True, exist_ok=True)
     HTML_PREVIEW_PATH.parent.mkdir(parents=True, exist_ok=True)
-    SVG_PATH.write_text(activity_svg, encoding="utf-8")
+    IMAGE_PATH.write_bytes(activity_png)
     HTML_PREVIEW_PATH.write_text(activity_preview, encoding="utf-8")
     if args.update_readme:
         if not README_PATH.exists():
