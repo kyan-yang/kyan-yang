@@ -812,8 +812,6 @@ def render_stats(
         f'  <img src="{svg_reference}" alt="Weekly code activity card" width="100%" />',
         "</p>",
         "",
-        f"> Rolling window: the last {window_days} calendar day{'s' if window_days != 1 else ''}, including today.",
-        "",
     ]
 
     if total_commits == 0:
@@ -890,8 +888,6 @@ def render_stats(
 
     lines.extend(
         [
-            "",
-            "> Language detection is inferred from changed filenames and extensions.",
             "",
             f"> {coverage_note}",
             "",

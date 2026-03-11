@@ -13,8 +13,6 @@ Code, experiments, and a weekly snapshot of shipped work generated straight from
   <img src="./assets/activity-card.svg" alt="Weekly code activity card" width="100%" />
 </p>
 
-> Rolling window: the last 7 calendar days, including today.
-
 <details>
 <summary>Open raw weekly breakdown</summary>
 
@@ -52,18 +50,7 @@ Code, experiments, and a weekly snapshot of shipped work generated straight from
 | --- | ---: | ---: | ---: | ---: |
 | `kyan-yang/kyan-yang` | 648 | +600 | -48 | 2 |
 
-> Language detection is inferred from changed filenames and extensions.
-
 > Coverage is limited to code-file changes in public activity. Add PROFILE_STATS_TOKEN to include private and collaborator repositories.
 
 </details>
 <!-- profile-stats:end -->
-
-<details>
-<summary>How this profile works</summary>
-
-- A GitHub Actions workflow refreshes this dashboard every day.
-- The updater script counts code-only additions, deletions, commits, active days, languages, and the repositories touched most recently.
-- Private repositories are included when the workflow can read them through `PROFILE_STATS_TOKEN`.
-
-</details>
