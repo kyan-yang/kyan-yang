@@ -3,7 +3,7 @@ name: Update profile stats
 on:
   workflow_dispatch:
   schedule:
-    - cron: "17 14 * * *"
+    - cron: "0 8 * * *"
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
