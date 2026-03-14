@@ -160,7 +160,7 @@ def build_reference_html(card: DashboardCardData | None = None) -> str:
         REFERENCE_CROSSHAIR,
         (
             '<div class="crosshair" vid="24"></div>\n'
-            f'                <div class="mono-tiny" style="position: absolute; top: calc(50% - 64px); left: 50%; transform: translateX(-50%); letter-spacing: 0.2em; white-space: nowrap; font-size: 0.72rem;">{window_label(card)}</div>'
+            f'                <div class="mono-tiny" style="position: absolute; top: calc(50% - 64px); left: 50%; transform: translateX(-50%); letter-spacing: 0.2em; white-space: nowrap; font-size: 0.72rem; color: var(--text-cream); opacity: 1;">{window_label(card)}</div>'
         ),
         "center label",
     )
