@@ -84,7 +84,7 @@ def window_label(card: DashboardCardData) -> str:
 
 
 def active_label() -> str:
-    return "DAYS ACTIVE"
+    return "ACTIVE DAYS"
 
 
 def active_days_display(card: DashboardCardData) -> str:
