@@ -5,13 +5,13 @@ from __future__ import annotations
 import argparse
 import os
 import sys
-from datetime import timedelta
+from datetime import datetime, timezone
 
-from profile_stats.config import HTML_PREVIEW_PATH, IMAGE_PATH, README_PATH, env_int
+from profile_stats.config import HTML_PREVIEW_PATH, IMAGE_PATH, PACIFIC_TZ, README_PATH
 from profile_stats.github_api import collect_activity, infer_username, now_utc, require_token_in_actions
 from profile_stats.models import GitHubError, fake_dev_collected
 from profile_stats.render import render_activity_png, render_activity_preview, render_stats, replace_stats_block
-from profile_stats.stats import aggregate_stats, build_dashboard_card, build_weekly_summary, start_of_utc_day
+from profile_stats.stats import aggregate_stats, build_dashboard_card, build_weekly_summary
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -34,13 +34,15 @@ def main() -> int:
         require_token_in_actions()
 
     username = infer_username() if not args.dev else "dev"
-    window_days = env_int("PROFILE_STATS_WINDOW_DAYS", 30)
+    now_pacific = now_utc().astimezone(PACIFIC_TZ)
+    window_month = now_pacific.strftime("%B")
+    window_start = datetime(now_pacific.year, now_pacific.month, 1, tzinfo=PACIFIC_TZ).astimezone(timezone.utc)
     window_end = now_utc()
-    window_start = start_of_utc_day(window_end.date() - timedelta(days=window_days - 1))
+    window_days = (now_pacific.date() - now_pacific.replace(day=1).date()).days + 1
 
     if args.dev:
         collected = fake_dev_collected(window_end)
-        card_summary = build_weekly_summary(collected, window_days)
+        card_summary = build_weekly_summary(collected, window_days, window_month)
         card = build_dashboard_card(card_summary, collected)
         if os.getenv("PROFILE_STATS_DRY_RUN", "").strip() != "1":
             print("Dev mode: using fake data, skipping GitHub API", file=sys.stderr)
@@ -52,10 +54,10 @@ def main() -> int:
             preview = "\n".join(dataset.warnings[:5])
             print(f"Skipped some repositories:\n{preview}", file=sys.stderr)
 
-        card_summary = build_weekly_summary(collected, window_days)
+        card_summary = build_weekly_summary(collected, window_days, window_month)
         card = build_dashboard_card(card_summary, collected)
 
-    block = render_stats(username, window_start, window_end, window_days, collected)
+    block = render_stats(username, window_start, window_end, window_month, collected)
     activity_png = render_activity_png(card)
     activity_preview = render_activity_preview(card)
 

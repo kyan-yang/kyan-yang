@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections import defaultdict
 from datetime import date, datetime, timezone
 
+from .config import PACIFIC_TZ
 from .models import CollectedStats, CommitRecord, DashboardCardData, RepoStats, WeeklySummary
 
 
@@ -70,7 +71,7 @@ def render_language_donut(per_language: dict[str, RepoStats]) -> list[tuple[str,
     return [(language, amount / total if total else 0.0) for language, amount in segments]
 
 
-def build_weekly_summary(collected: CollectedStats, window_days: int) -> WeeklySummary:
+def build_weekly_summary(collected: CollectedStats, window_days: int, window_month: str = "") -> WeeklySummary:
     per_repo = collected.per_repo
     commits = collected.commits
     total_additions = sum(repo.additions for repo in per_repo.values())
@@ -78,12 +79,13 @@ def build_weekly_summary(collected: CollectedStats, window_days: int) -> WeeklyS
     total_commits = sum(repo.commits for repo in per_repo.values())
     total_changed = total_additions + total_deletions
     repo_count = len(per_repo)
-    active_days = len({commit.committed_at.astimezone(timezone.utc).date() for commit in commits})
+    active_days = len({commit.committed_at.astimezone(PACIFIC_TZ).date() for commit in commits})
     average_changed = round(total_changed / total_commits) if total_commits else 0
     average_active_day = round(total_changed / active_days) if active_days else 0
     net_delta = total_additions - total_deletions
     return WeeklySummary(
         window_days=window_days,
+        window_month=window_month,
         total_additions=total_additions,
         total_deletions=total_deletions,
         net_delta=net_delta,
@@ -102,6 +104,7 @@ def build_dashboard_card(
 ) -> DashboardCardData:
     return DashboardCardData(
         window_days=summary.window_days,
+        window_month=summary.window_month,
         active_days=summary.active_days,
         total_commits=summary.total_commits,
         total_additions=summary.total_additions,

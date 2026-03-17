@@ -75,12 +75,12 @@ def xml_escape(value: str) -> str:
     return html.escape(value, quote=True)
 
 
-def card_title(window_days: int) -> str:
-    return f"{format_int(window_days)}-day GitHub activity specimen"
+def card_title(window_month: str) -> str:
+    return f"{window_month} GitHub activity specimen"
 
 
 def window_label(card: DashboardCardData) -> str:
-    return f"PAST {format_int(card.window_days)} DAYS"
+    return f"{card.window_month.upper()} SO FAR"
 
 
 def active_label() -> str:
@@ -146,7 +146,7 @@ def build_reference_html(card: DashboardCardData | None = None) -> str:
     html_text = replace_exact(
         html_text,
         REFERENCE_TITLE,
-        f'<title vid="4">{xml_escape(card_title(card.window_days))}</title>',
+        f'<title vid="4">{xml_escape(card_title(card.window_month))}</title>',
         "reference title",
     )
     html_text = replace_exact(
@@ -267,29 +267,30 @@ def render_stats(
     username: str,
     window_start: datetime,
     window_end: datetime,
-    window_days: int,
+    window_month: str,
     collected: CollectedStats,
 ) -> str:
     del window_start, window_end
 
     image_reference = "./assets/activity-card.png"
     updated_at = now_utc().strftime("%Y-%m-%d %H:%M UTC")
+    month_lower = window_month.lower()
 
     if collected.commits:
         caption = (
-            f"Generated from GitHub commit data for `{username}` over the last "
-            f"{format_int(window_days)} days. Updated {updated_at}."
+            f"Generated from GitHub commit data for `{username}` for "
+            f"{month_lower} so far. Updated {updated_at}."
         )
     else:
         caption = (
-            f"No code-file commits detected for `{username}` over the last "
-            f"{format_int(window_days)} days. Updated {updated_at}."
+            f"No code-file commits detected for `{username}` for "
+            f"{month_lower} so far. Updated {updated_at}."
         )
 
     return "\n".join(
         [
             '<p align="center">',
-            f'  <img src="{image_reference}" alt="{card_title(window_days)}" width="100%" />',
+            f'  <img src="{image_reference}" alt="{card_title(window_month)}" width="100%" />',
             "</p>",
             "",
             f'<p align="center"><sub>{caption}</sub></p>',

@@ -3,8 +3,11 @@ from __future__ import annotations
 import os
 from functools import lru_cache
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 from .models import GitHubError
+
+PACIFIC_TZ = ZoneInfo("America/Los_Angeles")
 
 
 def load_dotenv(path: Path = Path(".env")) -> None:

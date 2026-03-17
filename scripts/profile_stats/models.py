@@ -54,6 +54,7 @@ class ActivityDataset:
 @dataclass
 class WeeklySummary:
     window_days: int
+    window_month: str
     total_additions: int
     total_deletions: int
     net_delta: int
@@ -68,6 +69,7 @@ class WeeklySummary:
 @dataclass
 class DashboardCardData:
     window_days: int
+    window_month: str
     active_days: int
     total_commits: int
     total_additions: int
@@ -88,10 +90,11 @@ class RateLimitError(GitHubError):
     pass
 
 
-def fake_dev_card(window_days: int = 22 * 7) -> DashboardCardData:
+def fake_dev_card(window_days: int = 22 * 7, window_month: str = "March") -> DashboardCardData:
     """Sample data for local dev/testing without hitting the GitHub API."""
     return DashboardCardData(
         window_days=window_days,
+        window_month=window_month,
         active_days=118,
         total_commits=182,
         total_additions=2_400_000,
