@@ -55,13 +55,13 @@ jobs:
 
       - name: Commit README changes
         run: |
-          if git diff --quiet README.md assets/activity-card.png assets/activity-card-preview.html; then
-            echo "README, PNG card, and preview are already up to date."
+          if git diff --quiet README.md assets/activity-card.png assets/activity-card-preview.html assets/commit-cache.json; then
+            echo "README, PNG card, preview, and cache are already up to date."
             exit 0
           fi
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add README.md assets/activity-card.png assets/activity-card-preview.html
+          git add README.md assets/activity-card.png assets/activity-card-preview.html assets/commit-cache.json
           git commit -m "chore: update profile stats"
           git push

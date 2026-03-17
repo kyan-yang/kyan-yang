@@ -31,6 +31,7 @@ load_dotenv()
 API_ROOT = "https://api.github.com"
 README_PATH = Path(os.getenv("PROFILE_STATS_README", "README.md"))
 IMAGE_PATH = Path(os.getenv("PROFILE_STATS_IMAGE", "assets/activity-card.png"))
+CACHE_PATH = Path(os.getenv("PROFILE_STATS_CACHE", "assets/commit-cache.json"))
 HTML_PREVIEW_PATH = Path(os.getenv("PROFILE_STATS_HTML_PREVIEW", "assets/activity-card-preview.html"))
 REFERENCE_HTML_PATH = Path(os.getenv("PROFILE_STATS_REFERENCE_HTML", "assets/reference.html"))
 REQUEST_TIMEOUT_SECONDS = 30

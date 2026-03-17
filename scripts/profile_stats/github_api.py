@@ -7,7 +7,7 @@ import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
 
-from .config import API_ROOT, REQUEST_TIMEOUT_SECONDS, detect_language, env_int, excluded_repos, is_code_file
+from .config import API_ROOT, CACHE_PATH, REQUEST_TIMEOUT_SECONDS, detect_language, env_int, excluded_repos, is_code_file
 from .models import ActivityDataset, CommitRecord, CommitSummary, GitHubError, RateLimitError, RepoStats
 
 
@@ -244,6 +244,68 @@ def extract_commit_datetime(commit: dict[str, object]) -> datetime:
     return now_utc()
 
 
+def _commit_to_dict(record: CommitRecord) -> dict[str, object]:
+    return {
+        "repo": record.repo,
+        "sha": record.sha,
+        "committed_at": to_iso8601(record.committed_at),
+        "additions": record.additions,
+        "deletions": record.deletions,
+        "per_language": {
+            lang: {"additions": stats.additions, "deletions": stats.deletions}
+            for lang, stats in record.per_language.items()
+        },
+    }
+
+
+def _commit_from_dict(data: dict[str, object]) -> CommitRecord | None:
+    try:
+        committed_at = parse_iso8601(data.get("committed_at"))
+        if not committed_at:
+            return None
+        per_language: dict[str, RepoStats] = {}
+        for lang, stats in (data.get("per_language") or {}).items():
+            if isinstance(stats, dict):
+                per_language[lang] = RepoStats(
+                    additions=int(stats.get("additions", 0)),
+                    deletions=int(stats.get("deletions", 0)),
+                )
+        return CommitRecord(
+            repo=str(data.get("repo", "")),
+            sha=str(data.get("sha", "")),
+            committed_at=committed_at,
+            additions=int(data.get("additions", 0)),
+            deletions=int(data.get("deletions", 0)),
+            per_language=per_language,
+        )
+    except (TypeError, ValueError):
+        return None
+
+
+def load_cache() -> list[CommitRecord]:
+    if not CACHE_PATH.exists():
+        return []
+    try:
+        raw = json.loads(CACHE_PATH.read_text(encoding="utf-8"))
+        if not isinstance(raw, list):
+            return []
+        records: list[CommitRecord] = []
+        for entry in raw:
+            if isinstance(entry, dict):
+                record = _commit_from_dict(entry)
+                if record:
+                    records.append(record)
+        return records
+    except (json.JSONDecodeError, OSError):
+        return []
+
+
+def save_cache(commits: list[CommitRecord]) -> None:
+    CACHE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    payload = [_commit_to_dict(c) for c in commits]
+    CACHE_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+
+
 def collect_activity(
     username: str,
     code_window_start: datetime,
@@ -294,5 +356,20 @@ def collect_activity(
                 )
             )
 
+    # Merge cached commits that fall within the window
+    cached = load_cache()
+    for record in cached:
+        commit_key = f"{record.repo}:{record.sha}"
+        if commit_key in seen_commits:
+            continue
+        if record.committed_at < code_window_start or record.committed_at > window_end:
+            continue
+        seen_commits.add(commit_key)
+        code_commits.append(record)
+
     code_commits.sort(key=lambda item: item.committed_at)
+
+    # Save all commits (fresh + cached) back to the cache
+    save_cache(code_commits)
+
     return ActivityDataset(code_commits=code_commits, warnings=warnings)
