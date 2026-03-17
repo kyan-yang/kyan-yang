@@ -1,0 +1,1645 @@
+[
+  {
+    "repo": "kyan-yang/kyanyang.com",
+    "sha": "363c2e42dbc4273199e810b153f704e2abd02e4b",
+    "committed_at": "2026-03-03T06:34:59Z",
+    "additions": 1,
+    "deletions": 1,
+    "per_language": {
+      "TypeScript": {
+        "additions": 1,
+        "deletions": 1
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/kyanyang.com",
+    "sha": "6af55d4a7b2fe12fa90aa922d66263b390c51e6e",
+    "committed_at": "2026-03-03T06:36:50Z",
+    "additions": 2,
+    "deletions": 1,
+    "per_language": {
+      "TypeScript": {
+        "additions": 2,
+        "deletions": 1
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "e440ea3a7a3c286b99703ff2982d5541a9d083c8",
+    "committed_at": "2026-03-03T10:19:31Z",
+    "additions": 3312,
+    "deletions": 0,
+    "per_language": {
+      "CSS": {
+        "additions": 35,
+        "deletions": 0
+      },
+      "JavaScript": {
+        "additions": 472,
+        "deletions": 0
+      },
+      "HTML": {
+        "additions": 27,
+        "deletions": 0
+      },
+      "TypeScript": {
+        "additions": 2647,
+        "deletions": 0
+      },
+      "SQL": {
+        "additions": 131,
+        "deletions": 0
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "7333e27837e72d73f75eba377f15be0f662b784a",
+    "committed_at": "2026-03-03T10:27:11Z",
+    "additions": 51,
+    "deletions": 20,
+    "per_language": {
+      "TypeScript": {
+        "additions": 51,
+        "deletions": 20
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "810c076f753e35ac09cc519208534047db4105ed",
+    "committed_at": "2026-03-03T10:50:27Z",
+    "additions": 107,
+    "deletions": 96,
+    "per_language": {
+      "TypeScript": {
+        "additions": 107,
+        "deletions": 96
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "c2b0d525bb21b73bfa4efd7f1fbf16016d309b88",
+    "committed_at": "2026-03-03T10:55:28Z",
+    "additions": 2,
+    "deletions": 475,
+    "per_language": {
+      "CSS": {
+        "additions": 0,
+        "deletions": 1
+      },
+      "JavaScript": {
+        "additions": 0,
+        "deletions": 472
+      },
+      "HTML": {
+        "additions": 2,
+        "deletions": 2
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "5d3cadfa2fd68beaa3fe31a722d623d6716fe6f1",
+    "committed_at": "2026-03-03T11:08:18Z",
+    "additions": 97,
+    "deletions": 23,
+    "per_language": {
+      "HTML": {
+        "additions": 2,
+        "deletions": 2
+      },
+      "TypeScript": {
+        "additions": 95,
+        "deletions": 21
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "ddbabecdb3e87ec75f82b325905130a3eef6946b",
+    "committed_at": "2026-03-03T18:23:41Z",
+    "additions": 1691,
+    "deletions": 383,
+    "per_language": {
+      "TypeScript": {
+        "additions": 1572,
+        "deletions": 383
+      },
+      "SQL": {
+        "additions": 119,
+        "deletions": 0
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "fc1b26d28cec1c1e0fb700710c48273e28453ce4",
+    "committed_at": "2026-03-03T18:44:30Z",
+    "additions": 1,
+    "deletions": 1,
+    "per_language": {
+      "TypeScript": {
+        "additions": 1,
+        "deletions": 1
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "e81c72c3ca1fc5522a540201ec0869d806eac997",
+    "committed_at": "2026-03-03T18:55:28Z",
+    "additions": 7,
+    "deletions": 8,
+    "per_language": {
+      "TypeScript": {
+        "additions": 1,
+        "deletions": 0
+      },
+      "SQL": {
+        "additions": 6,
+        "deletions": 8
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "802d52336cc43a419d1cf38f8ff4e0a1715e6a0c",
+    "committed_at": "2026-03-03T19:06:57Z",
+    "additions": 62,
+    "deletions": 56,
+    "per_language": {
+      "TypeScript": {
+        "additions": 62,
+        "deletions": 56
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "6c556543570809ba9ddfbc34c78512f44430f4e6",
+    "committed_at": "2026-03-03T23:00:11Z",
+    "additions": 687,
+    "deletions": 42,
+    "per_language": {
+      "TypeScript": {
+        "additions": 660,
+        "deletions": 42
+      },
+      "SQL": {
+        "additions": 27,
+        "deletions": 0
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "23a58aee5ff73222ca19ef6482bf2547465baebf",
+    "committed_at": "2026-03-04T00:38:48Z",
+    "additions": 8,
+    "deletions": 12,
+    "per_language": {
+      "TypeScript": {
+        "additions": 6,
+        "deletions": 11
+      },
+      "SQL": {
+        "additions": 2,
+        "deletions": 1
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "c0f782c9c6bfccff6136309a00673d76afe137b6",
+    "committed_at": "2026-03-04T01:04:06Z",
+    "additions": 632,
+    "deletions": 48,
+    "per_language": {
+      "HTML": {
+        "additions": 2,
+        "deletions": 2
+      },
+      "TypeScript": {
+        "additions": 628,
+        "deletions": 46
+      },
+      "SQL": {
+        "additions": 2,
+        "deletions": 0
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "1f3521bce3df6b3f622254355295deb320f9fb16",
+    "committed_at": "2026-03-04T01:09:13Z",
+    "additions": 6,
+    "deletions": 0,
+    "per_language": {
+      "TypeScript": {
+        "additions": 6,
+        "deletions": 0
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "6060d324cb44168f9c537c4fc27b1a86b0700b80",
+    "committed_at": "2026-03-04T01:43:02Z",
+    "additions": 33,
+    "deletions": 3,
+    "per_language": {
+      "TypeScript": {
+        "additions": 33,
+        "deletions": 3
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "554f51a385ba99d3d99105279a1e9a2922d15eca",
+    "committed_at": "2026-03-04T01:43:56Z",
+    "additions": 32,
+    "deletions": 1,
+    "per_language": {
+      "TypeScript": {
+        "additions": 32,
+        "deletions": 1
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "fbe38507b9f4d620bf09244eb74e38cdf82af1bd",
+    "committed_at": "2026-03-04T01:48:24Z",
+    "additions": 26,
+    "deletions": 7,
+    "per_language": {
+      "TypeScript": {
+        "additions": 26,
+        "deletions": 7
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "ac2e9b97edfb6d66aef8d4b1d8d1f6701bbfd076",
+    "committed_at": "2026-03-04T01:59:16Z",
+    "additions": 170,
+    "deletions": 148,
+    "per_language": {
+      "TypeScript": {
+        "additions": 142,
+        "deletions": 142
+      },
+      "CSS": {
+        "additions": 28,
+        "deletions": 6
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "861dcd982e386f65430692a2829b5082f678a81d",
+    "committed_at": "2026-03-04T02:04:36Z",
+    "additions": 135,
+    "deletions": 54,
+    "per_language": {
+      "TypeScript": {
+        "additions": 129,
+        "deletions": 54
+      },
+      "SQL": {
+        "additions": 6,
+        "deletions": 0
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "062c974d679433af8742b6bf2b21d2d25430348e",
+    "committed_at": "2026-03-04T02:06:51Z",
+    "additions": 7,
+    "deletions": 0,
+    "per_language": {
+      "SQL": {
+        "additions": 7,
+        "deletions": 0
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "4a8616b5a038d7a5629576f157caab18be16c473",
+    "committed_at": "2026-03-04T02:13:53Z",
+    "additions": 442,
+    "deletions": 40,
+    "per_language": {
+      "TypeScript": {
+        "additions": 442,
+        "deletions": 40
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "8e8463d630db1600b74b8f582d4d7db56b3fe61f",
+    "committed_at": "2026-03-04T02:33:26Z",
+    "additions": 134,
+    "deletions": 7,
+    "per_language": {
+      "TypeScript": {
+        "additions": 134,
+        "deletions": 7
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "ae89c735606d5ad87053155a1e40d0a1c9b2210c",
+    "committed_at": "2026-03-04T03:29:57Z",
+    "additions": 397,
+    "deletions": 44,
+    "per_language": {
+      "TypeScript": {
+        "additions": 387,
+        "deletions": 44
+      },
+      "SQL": {
+        "additions": 10,
+        "deletions": 0
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "5f0b42833d627490555aa7443b27f3bcc76d746e",
+    "committed_at": "2026-03-04T06:07:27Z",
+    "additions": 1319,
+    "deletions": 66,
+    "per_language": {
+      "TypeScript": {
+        "additions": 1084,
+        "deletions": 66
+      },
+      "SQL": {
+        "additions": 235,
+        "deletions": 0
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "82c4f5dcbf5ca2147a26e2c391906c0ae89f64ce",
+    "committed_at": "2026-03-04T06:08:07Z",
+    "additions": 640,
+    "deletions": 1,
+    "per_language": {
+      "TypeScript": {
+        "additions": 640,
+        "deletions": 1
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "b92f9c2be869232b1a068f702f6cbabc2f358423",
+    "committed_at": "2026-03-04T06:09:18Z",
+    "additions": 0,
+    "deletions": 14,
+    "per_language": {
+      "HTML": {
+        "additions": 0,
+        "deletions": 14
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "6d27d5bfa9ab19fc60cb24581d2615c6aebad0f5",
+    "committed_at": "2026-03-04T07:10:58Z",
+    "additions": 413,
+    "deletions": 54,
+    "per_language": {
+      "TypeScript": {
+        "additions": 402,
+        "deletions": 54
+      },
+      "SQL": {
+        "additions": 11,
+        "deletions": 0
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "624cf874cca08d346b280c302b5dc6246bea70ba",
+    "committed_at": "2026-03-04T07:22:37Z",
+    "additions": 1,
+    "deletions": 1,
+    "per_language": {
+      "TypeScript": {
+        "additions": 1,
+        "deletions": 1
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "836ad40d0c5b296751e363954ac9d6c9dd84d312",
+    "committed_at": "2026-03-04T07:43:35Z",
+    "additions": 32,
+    "deletions": 7,
+    "per_language": {
+      "TypeScript": {
+        "additions": 32,
+        "deletions": 7
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "cfa16e2595c76c1e6a764472632829d783a6ebd1",
+    "committed_at": "2026-03-04T07:44:04Z",
+    "additions": 309,
+    "deletions": 5,
+    "per_language": {
+      "TypeScript": {
+        "additions": 309,
+        "deletions": 5
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "b91698d8035d4ab655e668169da38af0c4cbc51e",
+    "committed_at": "2026-03-04T07:45:08Z",
+    "additions": 5,
+    "deletions": 3,
+    "per_language": {
+      "TypeScript": {
+        "additions": 5,
+        "deletions": 3
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "8065a5dadd35382dda1f3026476094e1054a5bb4",
+    "committed_at": "2026-03-04T07:55:47Z",
+    "additions": 63,
+    "deletions": 1,
+    "per_language": {
+      "TypeScript": {
+        "additions": 63,
+        "deletions": 1
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "92e41f1c6a1d169a62bd7df3244ed6e4c71b1dfe",
+    "committed_at": "2026-03-04T07:58:36Z",
+    "additions": 188,
+    "deletions": 35,
+    "per_language": {
+      "TypeScript": {
+        "additions": 188,
+        "deletions": 35
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "71024b25136cecfbfecc5a5c5d3db08605877b40",
+    "committed_at": "2026-03-04T08:08:34Z",
+    "additions": 108,
+    "deletions": 51,
+    "per_language": {
+      "TypeScript": {
+        "additions": 108,
+        "deletions": 51
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "fbad2f749654c70a0edec7892fb3b72929103d97",
+    "committed_at": "2026-03-04T08:12:50Z",
+    "additions": 1,
+    "deletions": 8,
+    "per_language": {
+      "TypeScript": {
+        "additions": 1,
+        "deletions": 8
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "4937248dfbddb87f9f611e23dd55167f6b6875f0",
+    "committed_at": "2026-03-04T08:37:27Z",
+    "additions": 30,
+    "deletions": 2,
+    "per_language": {
+      "TypeScript": {
+        "additions": 30,
+        "deletions": 2
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "d1718f7cdf88426c4b85d2ff9dcd74bef7286ce9",
+    "committed_at": "2026-03-04T08:55:01Z",
+    "additions": 189,
+    "deletions": 10,
+    "per_language": {
+      "TypeScript": {
+        "additions": 162,
+        "deletions": 10
+      },
+      "SQL": {
+        "additions": 27,
+        "deletions": 0
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "f60518ce95b9d806eb9a14fb9ec04a94364b8ef8",
+    "committed_at": "2026-03-05T05:27:22Z",
+    "additions": 35,
+    "deletions": 3,
+    "per_language": {
+      "TypeScript": {
+        "additions": 35,
+        "deletions": 3
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/instagram-scripts",
+    "sha": "ef982a29b32d9ff9c098005a9ad399acb898db66",
+    "committed_at": "2026-03-06T06:57:31Z",
+    "additions": 409,
+    "deletions": 12,
+    "per_language": {
+      "Python": {
+        "additions": 110,
+        "deletions": 12
+      },
+      "JavaScript": {
+        "additions": 299,
+        "deletions": 0
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/instagram-scripts",
+    "sha": "95298cd5573d2297b4c768be6f0d52af0507d19a",
+    "committed_at": "2026-03-06T07:19:27Z",
+    "additions": 46,
+    "deletions": 1,
+    "per_language": {
+      "JavaScript": {
+        "additions": 46,
+        "deletions": 1
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/instagram-scripts",
+    "sha": "e71085d515d47d282c02f952aeaf9c51cdbbd556",
+    "committed_at": "2026-03-06T07:32:28Z",
+    "additions": 287,
+    "deletions": 3,
+    "per_language": {
+      "Python": {
+        "additions": 287,
+        "deletions": 3
+      },
+      "JavaScript": {
+        "additions": 0,
+        "deletions": 0
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/instagram-scripts",
+    "sha": "cc2bbc6844ce6dd769a93b3a1c63d00ac7bdadae",
+    "committed_at": "2026-03-06T09:44:51Z",
+    "additions": 447,
+    "deletions": 103,
+    "per_language": {
+      "JavaScript": {
+        "additions": 192,
+        "deletions": 0
+      },
+      "Python": {
+        "additions": 255,
+        "deletions": 103
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/kyanyang.com",
+    "sha": "bd029557db02ac6d717acc0628531ab3e444c596",
+    "committed_at": "2026-03-06T21:42:02Z",
+    "additions": 5,
+    "deletions": 3,
+    "per_language": {
+      "TypeScript": {
+        "additions": 5,
+        "deletions": 3
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/kyanyang.com",
+    "sha": "bbda0dcfefde7ac801275d6323e5c55ef7735420",
+    "committed_at": "2026-03-06T21:44:26Z",
+    "additions": 1,
+    "deletions": 1,
+    "per_language": {
+      "TypeScript": {
+        "additions": 1,
+        "deletions": 1
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/kyanyang.com",
+    "sha": "761021f93689911ece2f6f5f2d1d5e688bcfb157",
+    "committed_at": "2026-03-06T21:44:51Z",
+    "additions": 1,
+    "deletions": 1,
+    "per_language": {
+      "TypeScript": {
+        "additions": 1,
+        "deletions": 1
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/kyanyang.com",
+    "sha": "0d75d31d1b4da3b4e09b23b51c56db97138fd71c",
+    "committed_at": "2026-03-06T21:45:56Z",
+    "additions": 1,
+    "deletions": 1,
+    "per_language": {
+      "TypeScript": {
+        "additions": 1,
+        "deletions": 1
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/essay-reviser",
+    "sha": "3c0d191ae4093d51263e8d5fae42507a79eff473",
+    "committed_at": "2026-03-07T08:52:37Z",
+    "additions": 2233,
+    "deletions": 0,
+    "per_language": {
+      "Python": {
+        "additions": 1506,
+        "deletions": 0
+      },
+      "HTML": {
+        "additions": 12,
+        "deletions": 0
+      },
+      "TypeScript": {
+        "additions": 428,
+        "deletions": 0
+      },
+      "CSS": {
+        "additions": 287,
+        "deletions": 0
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/essay-reviser",
+    "sha": "4f5ee65af82367f43a3fa0c86d67de8db9f01f8d",
+    "committed_at": "2026-03-07T09:00:42Z",
+    "additions": 490,
+    "deletions": 41,
+    "per_language": {
+      "Python": {
+        "additions": 490,
+        "deletions": 41
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/essay-reviser",
+    "sha": "6ddd1cb3fa4dd97f739d452514cb6e2697bb2d3f",
+    "committed_at": "2026-03-07T09:03:04Z",
+    "additions": 486,
+    "deletions": 0,
+    "per_language": {
+      "Python": {
+        "additions": 486,
+        "deletions": 0
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/essay-reviser",
+    "sha": "75a7107760d335d104206180f059feab3def7e03",
+    "committed_at": "2026-03-07T09:08:21Z",
+    "additions": 509,
+    "deletions": 324,
+    "per_language": {
+      "Python": {
+        "additions": 509,
+        "deletions": 324
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/essay-reviser",
+    "sha": "57c3a1038c2744ff5d8999028d653c4f6f1e309b",
+    "committed_at": "2026-03-07T09:13:45Z",
+    "additions": 333,
+    "deletions": 0,
+    "per_language": {
+      "Python": {
+        "additions": 333,
+        "deletions": 0
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/essay-reviser",
+    "sha": "6156d77ef5667ac2d7731343451afd9520ed45ad",
+    "committed_at": "2026-03-07T09:15:27Z",
+    "additions": 404,
+    "deletions": 0,
+    "per_language": {
+      "Python": {
+        "additions": 404,
+        "deletions": 0
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/essay-reviser",
+    "sha": "5623667fdf249c852e0bdd2deb4a5c6d481e5eec",
+    "committed_at": "2026-03-07T09:17:51Z",
+    "additions": 215,
+    "deletions": 66,
+    "per_language": {
+      "Python": {
+        "additions": 215,
+        "deletions": 66
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/essay-reviser",
+    "sha": "c5128f8bf7bdc0c5f811e072b1ae8208176c710b",
+    "committed_at": "2026-03-07T11:34:50Z",
+    "additions": 877,
+    "deletions": 163,
+    "per_language": {
+      "Python": {
+        "additions": 877,
+        "deletions": 163
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/essay-reviser",
+    "sha": "868c54b550237cbd28686756f3a1769e6a60b240",
+    "committed_at": "2026-03-07T11:37:24Z",
+    "additions": 596,
+    "deletions": 298,
+    "per_language": {
+      "Python": {
+        "additions": 480,
+        "deletions": 295
+      },
+      "TypeScript": {
+        "additions": 74,
+        "deletions": 2
+      },
+      "CSS": {
+        "additions": 42,
+        "deletions": 1
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/essay-reviser",
+    "sha": "8c8d629a2b8e8ea4a465342838c251178e96f201",
+    "committed_at": "2026-03-07T11:40:20Z",
+    "additions": 238,
+    "deletions": 46,
+    "per_language": {
+      "TypeScript": {
+        "additions": 127,
+        "deletions": 42
+      },
+      "CSS": {
+        "additions": 111,
+        "deletions": 4
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/essay-reviser",
+    "sha": "edf1aefb4b5bb767ce4f242345b9fd1ac0190341",
+    "committed_at": "2026-03-07T11:50:09Z",
+    "additions": 701,
+    "deletions": 212,
+    "per_language": {
+      "TypeScript": {
+        "additions": 409,
+        "deletions": 84
+      },
+      "CSS": {
+        "additions": 292,
+        "deletions": 128
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/essay-reviser",
+    "sha": "b160226a39a122af800f54100c113fc84e7c4b75",
+    "committed_at": "2026-03-07T12:01:42Z",
+    "additions": 0,
+    "deletions": 5932,
+    "per_language": {
+      "Python": {
+        "additions": 0,
+        "deletions": 4411
+      },
+      "HTML": {
+        "additions": 0,
+        "deletions": 12
+      },
+      "TypeScript": {
+        "additions": 0,
+        "deletions": 910
+      },
+      "CSS": {
+        "additions": 0,
+        "deletions": 599
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "ed96b63b2f4bf0714cd76524a325f5f2f5554765",
+    "committed_at": "2026-03-09T08:15:09Z",
+    "additions": 17,
+    "deletions": 29,
+    "per_language": {
+      "TypeScript": {
+        "additions": 0,
+        "deletions": 29
+      },
+      "Dockerfile": {
+        "additions": 17,
+        "deletions": 0
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "515dc9a74d767eefa70a211f043dbe17ca4c5a3a",
+    "committed_at": "2026-03-09T08:30:29Z",
+    "additions": 0,
+    "deletions": 17,
+    "per_language": {
+      "Dockerfile": {
+        "additions": 0,
+        "deletions": 17
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "39dd8ce2fad8ecc608bfe935a66cf501892bad30",
+    "committed_at": "2026-03-09T08:53:04Z",
+    "additions": 410,
+    "deletions": 118,
+    "per_language": {
+      "TypeScript": {
+        "additions": 410,
+        "deletions": 118
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "20d8147cb72b982ebbe8b79d567dbdd1307cfcf0",
+    "committed_at": "2026-03-09T09:09:22Z",
+    "additions": 72,
+    "deletions": 7,
+    "per_language": {
+      "TypeScript": {
+        "additions": 72,
+        "deletions": 7
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "b50a3291c0fcd4bb094e6223347ffbe942920981",
+    "committed_at": "2026-03-09T10:18:40Z",
+    "additions": 72,
+    "deletions": 7,
+    "per_language": {
+      "TypeScript": {
+        "additions": 72,
+        "deletions": 7
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "e7127e5d5efa7d58cf13efa615d9e36c26455afe",
+    "committed_at": "2026-03-09T10:32:59Z",
+    "additions": 1383,
+    "deletions": 0,
+    "per_language": {
+      "HTML": {
+        "additions": 16,
+        "deletions": 0
+      },
+      "TypeScript": {
+        "additions": 713,
+        "deletions": 0
+      },
+      "CSS": {
+        "additions": 654,
+        "deletions": 0
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "662a4642377a2a8b08c8cd5bccf30b8edfde9bd2",
+    "committed_at": "2026-03-09T11:57:55Z",
+    "additions": 768,
+    "deletions": 1113,
+    "per_language": {
+      "TypeScript": {
+        "additions": 419,
+        "deletions": 656
+      },
+      "CSS": {
+        "additions": 349,
+        "deletions": 457
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "259cf89fc53c69cf1ebf7e3dcf10ac7e9546835d",
+    "committed_at": "2026-03-09T13:21:27Z",
+    "additions": 2165,
+    "deletions": 316,
+    "per_language": {
+      "TypeScript": {
+        "additions": 997,
+        "deletions": 316
+      },
+      "CSS": {
+        "additions": 1168,
+        "deletions": 0
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "e55402041ed4d8f086a45cfd61034f5e160adf5e",
+    "committed_at": "2026-03-09T14:41:41Z",
+    "additions": 1309,
+    "deletions": 26,
+    "per_language": {
+      "TypeScript": {
+        "additions": 727,
+        "deletions": 26
+      },
+      "CSS": {
+        "additions": 582,
+        "deletions": 0
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "d286f5811dbab1a7819a3411e46bda3e234103c5",
+    "committed_at": "2026-03-09T16:05:07Z",
+    "additions": 1194,
+    "deletions": 345,
+    "per_language": {
+      "TypeScript": {
+        "additions": 1147,
+        "deletions": 344
+      },
+      "CSS": {
+        "additions": 47,
+        "deletions": 1
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "30dfb064df4ee2bc603b86df439de814494c85f9",
+    "committed_at": "2026-03-09T17:38:53Z",
+    "additions": 1,
+    "deletions": 1,
+    "per_language": {
+      "TypeScript": {
+        "additions": 1,
+        "deletions": 1
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "6b8567c71245b6f795be7b321b61227d7eb8b268",
+    "committed_at": "2026-03-09T19:58:52Z",
+    "additions": 68,
+    "deletions": 4,
+    "per_language": {
+      "TypeScript": {
+        "additions": 68,
+        "deletions": 4
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "aa63688317b38da028a00d01fb541f4b0b747f41",
+    "committed_at": "2026-03-09T20:36:39Z",
+    "additions": 34,
+    "deletions": 13,
+    "per_language": {
+      "TypeScript": {
+        "additions": 34,
+        "deletions": 13
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "3f81921246e7655f68f5484c283e1b984dbf5587",
+    "committed_at": "2026-03-09T23:47:25Z",
+    "additions": 278,
+    "deletions": 10,
+    "per_language": {
+      "Dockerfile": {
+        "additions": 18,
+        "deletions": 0
+      },
+      "TypeScript": {
+        "additions": 260,
+        "deletions": 10
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "12db7f47542c979c78dade72961c525bcd85b63d",
+    "committed_at": "2026-03-10T00:32:52Z",
+    "additions": 668,
+    "deletions": 674,
+    "per_language": {
+      "TypeScript": {
+        "additions": 148,
+        "deletions": 149
+      },
+      "CSS": {
+        "additions": 520,
+        "deletions": 525
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "44cde96cd763f48ee6364c7a068f668ec0198d2c",
+    "committed_at": "2026-03-10T05:48:33Z",
+    "additions": 1360,
+    "deletions": 625,
+    "per_language": {
+      "HTML": {
+        "additions": 5,
+        "deletions": 2
+      },
+      "TypeScript": {
+        "additions": 830,
+        "deletions": 361
+      },
+      "CSS": {
+        "additions": 525,
+        "deletions": 262
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "78933db27a1996f0e5dd37fea65c6cb8f89e7965",
+    "committed_at": "2026-03-10T08:06:35Z",
+    "additions": 649,
+    "deletions": 34,
+    "per_language": {
+      "TypeScript": {
+        "additions": 270,
+        "deletions": 34
+      },
+      "CSS": {
+        "additions": 358,
+        "deletions": 0
+      },
+      "SQL": {
+        "additions": 21,
+        "deletions": 0
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/kyanyang.com",
+    "sha": "05f4b5c48939606d6a23880264ec8e72611549b9",
+    "committed_at": "2026-03-10T09:07:23Z",
+    "additions": 4,
+    "deletions": 0,
+    "per_language": {
+      "TypeScript": {
+        "additions": 4,
+        "deletions": 0
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "835700ad4fd8dbdf304a9d4f29d9a427f6de0a4a",
+    "committed_at": "2026-03-10T09:24:00Z",
+    "additions": 23,
+    "deletions": 94,
+    "per_language": {
+      "TypeScript": {
+        "additions": 23,
+        "deletions": 94
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "27525405996db58a0c68ae7a53c7ac5dec3ac14c",
+    "committed_at": "2026-03-10T09:28:49Z",
+    "additions": 1,
+    "deletions": 1,
+    "per_language": {
+      "TypeScript": {
+        "additions": 1,
+        "deletions": 1
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "2ea764a180a4e4a38887a4a2e551a5ebd5b90edf",
+    "committed_at": "2026-03-10T09:29:59Z",
+    "additions": 13,
+    "deletions": 10,
+    "per_language": {
+      "TypeScript": {
+        "additions": 13,
+        "deletions": 10
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "54deb73d3b0188e28e548740043b96230f22df4d",
+    "committed_at": "2026-03-10T10:19:19Z",
+    "additions": 70,
+    "deletions": 0,
+    "per_language": {
+      "TypeScript": {
+        "additions": 70,
+        "deletions": 0
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "115173ad7913da804ec385ebf7d5c3fc1356d89a",
+    "committed_at": "2026-03-10T10:35:12Z",
+    "additions": 20,
+    "deletions": 12,
+    "per_language": {
+      "TypeScript": {
+        "additions": 9,
+        "deletions": 10
+      },
+      "CSS": {
+        "additions": 11,
+        "deletions": 2
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "2bd649546078b861c8e6e05e7dbd51fc03385280",
+    "committed_at": "2026-03-10T23:31:11Z",
+    "additions": 1499,
+    "deletions": 92,
+    "per_language": {
+      "HTML": {
+        "additions": 77,
+        "deletions": 4
+      },
+      "TypeScript": {
+        "additions": 1069,
+        "deletions": 86
+      },
+      "CSS": {
+        "additions": 353,
+        "deletions": 2
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "c550fb09dabe76ff888a7b59d3b4c8fa43c4671c",
+    "committed_at": "2026-03-10T23:49:53Z",
+    "additions": 17,
+    "deletions": 28,
+    "per_language": {
+      "TypeScript": {
+        "additions": 10,
+        "deletions": 17
+      },
+      "CSS": {
+        "additions": 7,
+        "deletions": 11
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "4bd5642f786de150152e79ad35d070e0da986b7f",
+    "committed_at": "2026-03-11T00:53:48Z",
+    "additions": 94,
+    "deletions": 217,
+    "per_language": {
+      "TypeScript": {
+        "additions": 65,
+        "deletions": 146
+      },
+      "HTML": {
+        "additions": 10,
+        "deletions": 10
+      },
+      "CSS": {
+        "additions": 19,
+        "deletions": 61
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "e3c8d3522e0457ae49dae8a5d516b6239e8f8bbd",
+    "committed_at": "2026-03-11T01:21:05Z",
+    "additions": 249,
+    "deletions": 81,
+    "per_language": {
+      "TypeScript": {
+        "additions": 203,
+        "deletions": 81
+      },
+      "SQL": {
+        "additions": 46,
+        "deletions": 0
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "abd6c1acb1f8823c61d99323dd0ee85abfb28633",
+    "committed_at": "2026-03-11T01:34:11Z",
+    "additions": 3,
+    "deletions": 3,
+    "per_language": {
+      "TypeScript": {
+        "additions": 3,
+        "deletions": 3
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "ed403a552601c4304653a598fe618aa2edec2ddd",
+    "committed_at": "2026-03-11T01:49:20Z",
+    "additions": 9,
+    "deletions": 9,
+    "per_language": {
+      "HTML": {
+        "additions": 0,
+        "deletions": 0
+      },
+      "TypeScript": {
+        "additions": 8,
+        "deletions": 8
+      },
+      "CSS": {
+        "additions": 0,
+        "deletions": 0
+      },
+      "Dockerfile": {
+        "additions": 1,
+        "deletions": 1
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "a7b607bc0061222f5276574dfe75bee779f7839d",
+    "committed_at": "2026-03-11T02:14:18Z",
+    "additions": 2,
+    "deletions": 4,
+    "per_language": {
+      "CSS": {
+        "additions": 1,
+        "deletions": 3
+      },
+      "TypeScript": {
+        "additions": 1,
+        "deletions": 1
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "882120076d362930b8a03b68f1853dd4c9a2c8c3",
+    "committed_at": "2026-03-11T02:23:42Z",
+    "additions": 51,
+    "deletions": 10,
+    "per_language": {
+      "CSS": {
+        "additions": 38,
+        "deletions": 0
+      },
+      "TypeScript": {
+        "additions": 13,
+        "deletions": 10
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/kyan-yang",
+    "sha": "3dae7b885d1e5e3aad998089a0fce49b665402f3",
+    "committed_at": "2026-03-11T02:36:15Z",
+    "additions": 378,
+    "deletions": 0,
+    "per_language": {
+      "Python": {
+        "additions": 378,
+        "deletions": 0
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/kyan-yang",
+    "sha": "25da639007ed0e9a10ddd7d8fca2ffee479756e6",
+    "committed_at": "2026-03-11T02:42:20Z",
+    "additions": 222,
+    "deletions": 48,
+    "per_language": {
+      "Python": {
+        "additions": 222,
+        "deletions": 48
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/kyan-yang",
+    "sha": "44f2f406eb19eee9e2ca804eaba55c9b03577279",
+    "committed_at": "2026-03-11T03:05:26Z",
+    "additions": 312,
+    "deletions": 21,
+    "per_language": {
+      "Python": {
+        "additions": 312,
+        "deletions": 21
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/kyan-yang",
+    "sha": "f08d01982e33a6b292bbec0faefddf02da124780",
+    "committed_at": "2026-03-11T03:11:34Z",
+    "additions": 144,
+    "deletions": 37,
+    "per_language": {
+      "Python": {
+        "additions": 144,
+        "deletions": 37
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/kyan-yang",
+    "sha": "f97d10f67e4c320d2cccaaa0a60e3f3b72b9c0e9",
+    "committed_at": "2026-03-11T03:14:58Z",
+    "additions": 0,
+    "deletions": 4,
+    "per_language": {
+      "Python": {
+        "additions": 0,
+        "deletions": 4
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/kyan-yang",
+    "sha": "fb170e052486d598dc7bec6d78462507c4274daf",
+    "committed_at": "2026-03-11T03:25:48Z",
+    "additions": 1,
+    "deletions": 20,
+    "per_language": {
+      "Python": {
+        "additions": 1,
+        "deletions": 20
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/kyan-yang",
+    "sha": "3e3be0a0c6e6a6b2d3d560c59afc75b2d07c82da",
+    "committed_at": "2026-03-11T10:22:03Z",
+    "additions": 1915,
+    "deletions": 894,
+    "per_language": {
+      "HTML": {
+        "additions": 720,
+        "deletions": 0
+      },
+      "Python": {
+        "additions": 1195,
+        "deletions": 894
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/kyanyang.com",
+    "sha": "e7b9836b7ba9f5e4fa93902f01182785ccaeda1e",
+    "committed_at": "2026-03-11T10:36:22Z",
+    "additions": 8,
+    "deletions": 1,
+    "per_language": {
+      "TypeScript": {
+        "additions": 8,
+        "deletions": 1
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "5bec1aea2e371a1f4d13e1634d5379c305e9329c",
+    "committed_at": "2026-03-11T10:45:51Z",
+    "additions": 8,
+    "deletions": 17,
+    "per_language": {
+      "CSS": {
+        "additions": 0,
+        "deletions": 5
+      },
+      "TypeScript": {
+        "additions": 8,
+        "deletions": 12
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "fb08219c76134d6b21759b11eb4655c618231d64",
+    "committed_at": "2026-03-11T11:27:28Z",
+    "additions": 13,
+    "deletions": 9,
+    "per_language": {
+      "HTML": {
+        "additions": 5,
+        "deletions": 5
+      },
+      "TypeScript": {
+        "additions": 8,
+        "deletions": 4
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "8b3689c986809f8105a0dd947e7f1f7b1e40b5ed",
+    "committed_at": "2026-03-13T06:28:11Z",
+    "additions": 50,
+    "deletions": 31,
+    "per_language": {
+      "TypeScript": {
+        "additions": 50,
+        "deletions": 31
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "829b68ea768790cbc05fa98221c0b68777d23234",
+    "committed_at": "2026-03-14T05:12:32Z",
+    "additions": 4,
+    "deletions": 4,
+    "per_language": {
+      "HTML": {
+        "additions": 3,
+        "deletions": 3
+      },
+      "TypeScript": {
+        "additions": 1,
+        "deletions": 1
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "8a96d166b014cf2750082003ec00890d8b20efd4",
+    "committed_at": "2026-03-14T06:02:06Z",
+    "additions": 16,
+    "deletions": 68,
+    "per_language": {
+      "TypeScript": {
+        "additions": 7,
+        "deletions": 68
+      },
+      "CSS": {
+        "additions": 9,
+        "deletions": 0
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/kyan-yang",
+    "sha": "31bb8f4df62511da9a2717f8984c6c27fb8cd8a8",
+    "committed_at": "2026-03-14T06:11:28Z",
+    "additions": 2,
+    "deletions": 2,
+    "per_language": {
+      "HTML": {
+        "additions": 1,
+        "deletions": 1
+      },
+      "Python": {
+        "additions": 1,
+        "deletions": 1
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/kyan-yang",
+    "sha": "e7209df1a769e7d425f72f2686649548982b6b83",
+    "committed_at": "2026-03-14T06:43:30Z",
+    "additions": 1,
+    "deletions": 1,
+    "per_language": {
+      "Python": {
+        "additions": 1,
+        "deletions": 1
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "01f407a44102df9361e78739546bed64af93ae16",
+    "committed_at": "2026-03-14T06:54:50Z",
+    "additions": 0,
+    "deletions": 17,
+    "per_language": {
+      "TypeScript": {
+        "additions": 0,
+        "deletions": 17
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/kyan-yang",
+    "sha": "34f1953bb100e268855ef84edc95cb03acc1a43a",
+    "committed_at": "2026-03-17T14:08:04Z",
+    "additions": 79,
+    "deletions": 1,
+    "per_language": {
+      "Python": {
+        "additions": 79,
+        "deletions": 1
+      }
+    }
+  }
+]
