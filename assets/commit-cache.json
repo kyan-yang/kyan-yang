@@ -2392,6 +2392,74 @@
     }
   },
   {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "9019808fa54cd46c181b2f6218c6eea8b8a3f7c0",
+    "committed_at": "2026-03-18T00:41:16Z",
+    "additions": 20,
+    "deletions": 2,
+    "per_language": {
+      "TypeScript": {
+        "additions": 10,
+        "deletions": 0
+      },
+      "Python": {
+        "additions": 10,
+        "deletions": 2
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "2a7dcf81b0c5cb1a1961996569bec07cf7aa5cfd",
+    "committed_at": "2026-03-18T01:02:24Z",
+    "additions": 2105,
+    "deletions": 31,
+    "per_language": {
+      "TypeScript": {
+        "additions": 2001,
+        "deletions": 31
+      },
+      "SQL": {
+        "additions": 104,
+        "deletions": 0
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "1aa11aba0a7ea962fef48978aa4d01579eed6c86",
+    "committed_at": "2026-03-18T01:11:58Z",
+    "additions": 530,
+    "deletions": 4,
+    "per_language": {
+      "TypeScript": {
+        "additions": 259,
+        "deletions": 2
+      },
+      "Python": {
+        "additions": 271,
+        "deletions": 2
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "b44a794b75aaebf450e6dcdf2a68de1462921f5c",
+    "committed_at": "2026-03-18T01:22:50Z",
+    "additions": 901,
+    "deletions": 0,
+    "per_language": {
+      "TypeScript": {
+        "additions": 171,
+        "deletions": 0
+      },
+      "Python": {
+        "additions": 730,
+        "deletions": 0
+      }
+    }
+  },
+  {
     "repo": "Vectus-AI/waitlist",
     "sha": "760aaa95afa1347676688faa008729607beb6fb6",
     "committed_at": "2026-03-18T01:28:40Z",
@@ -2405,6 +2473,133 @@
       "CSS": {
         "additions": 0,
         "deletions": 37
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "75c725e1a82d00350e217a585f7ec03181217fde",
+    "committed_at": "2026-03-18T01:32:39Z",
+    "additions": 752,
+    "deletions": 56,
+    "per_language": {
+      "TypeScript": {
+        "additions": 752,
+        "deletions": 56
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "64081e907da89b92cc623edf2c4ce4ba0a7bf4b1",
+    "committed_at": "2026-03-18T02:07:42Z",
+    "additions": 1798,
+    "deletions": 10,
+    "per_language": {
+      "TypeScript": {
+        "additions": 1604,
+        "deletions": 0
+      },
+      "Python": {
+        "additions": 173,
+        "deletions": 10
+      },
+      "Terraform": {
+        "additions": 21,
+        "deletions": 0
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "59225f29916dc2eaf211b105104105d30612fba9",
+    "committed_at": "2026-03-18T03:47:11Z",
+    "additions": 363,
+    "deletions": 24,
+    "per_language": {
+      "TypeScript": {
+        "additions": 363,
+        "deletions": 24
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "fcdff65f7c2de6336c5323eac653f244f0f35482",
+    "committed_at": "2026-03-18T03:56:10Z",
+    "additions": 126,
+    "deletions": 301,
+    "per_language": {
+      "TypeScript": {
+        "additions": 105,
+        "deletions": 173
+      },
+      "Python": {
+        "additions": 0,
+        "deletions": 128
+      },
+      "SQL": {
+        "additions": 21,
+        "deletions": 0
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "6e3bde0e34e991b33783fc8836f1e61d2df6acbc",
+    "committed_at": "2026-03-18T07:38:12Z",
+    "additions": 2057,
+    "deletions": 2708,
+    "per_language": {
+      "JavaScript": {
+        "additions": 1,
+        "deletions": 0
+      },
+      "TypeScript": {
+        "additions": 2007,
+        "deletions": 2703
+      },
+      "Python": {
+        "additions": 25,
+        "deletions": 5
+      },
+      "SQL": {
+        "additions": 24,
+        "deletions": 0
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "327cbda9a54c666bec66efe501ad8f2d02002dfd",
+    "committed_at": "2026-03-18T07:57:27Z",
+    "additions": 432,
+    "deletions": 15,
+    "per_language": {
+      "TypeScript": {
+        "additions": 104,
+        "deletions": 15
+      },
+      "Shell": {
+        "additions": 328,
+        "deletions": 0
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "d63ecad53749b5fde85daf70a3418b7f2086ca6a",
+    "committed_at": "2026-03-18T08:07:41Z",
+    "additions": 75,
+    "deletions": 8,
+    "per_language": {
+      "TypeScript": {
+        "additions": 18,
+        "deletions": 0
+      },
+      "Python": {
+        "additions": 57,
+        "deletions": 8
       }
     }
   },
@@ -2499,6 +2694,31 @@
     }
   },
   {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "09d4c5df354e9b2364c88efa6f3f2d00d8e74e6a",
+    "committed_at": "2026-03-18T09:19:14Z",
+    "additions": 2600,
+    "deletions": 1315,
+    "per_language": {
+      "TypeScript": {
+        "additions": 467,
+        "deletions": 22
+      },
+      "Python": {
+        "additions": 2073,
+        "deletions": 1293
+      },
+      "Shell": {
+        "additions": 54,
+        "deletions": 0
+      },
+      "SQL": {
+        "additions": 6,
+        "deletions": 0
+      }
+    }
+  },
+  {
     "repo": "Vectus-AI/waitlist",
     "sha": "9854feb9f4be0fdaa3a9d30400164610d6fdc6d0",
     "committed_at": "2026-03-18T09:19:18Z",
@@ -2508,6 +2728,19 @@
       "TypeScript": {
         "additions": 0,
         "deletions": 22
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "2c12e2443eb64e9018868f8bb7baf5eadc71ebd1",
+    "committed_at": "2026-03-18T09:21:44Z",
+    "additions": 4,
+    "deletions": 10,
+    "per_language": {
+      "TypeScript": {
+        "additions": 4,
+        "deletions": 10
       }
     }
   },
@@ -2730,6 +2963,104 @@
     }
   },
   {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "11017b6d4b251fa3f2657b44ace9d4af71c5abb9",
+    "committed_at": "2026-03-18T22:27:20Z",
+    "additions": 31,
+    "deletions": 2,
+    "per_language": {
+      "TypeScript": {
+        "additions": 14,
+        "deletions": 0
+      },
+      "Python": {
+        "additions": 12,
+        "deletions": 2
+      },
+      "Shell": {
+        "additions": 5,
+        "deletions": 0
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "2edddcba555f7c1ccbcfb106e390f25550bfff62",
+    "committed_at": "2026-03-18T22:30:37Z",
+    "additions": 155,
+    "deletions": 0,
+    "per_language": {
+      "SQL": {
+        "additions": 155,
+        "deletions": 0
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "ba6863d76c6f294c9582bc5f0d7e628cd606e08d",
+    "committed_at": "2026-03-18T22:38:32Z",
+    "additions": 2096,
+    "deletions": 1,
+    "per_language": {
+      "TypeScript": {
+        "additions": 2096,
+        "deletions": 1
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "3ad2ffd79869cd0cf621e67638a5e063724bb421",
+    "committed_at": "2026-03-18T22:48:48Z",
+    "additions": 533,
+    "deletions": 13,
+    "per_language": {
+      "TypeScript": {
+        "additions": 148,
+        "deletions": 4
+      },
+      "Python": {
+        "additions": 385,
+        "deletions": 9
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "f1400f8994f626f4d5f4094ecf10108e081ba195",
+    "committed_at": "2026-03-18T23:04:06Z",
+    "additions": 2740,
+    "deletions": 149,
+    "per_language": {
+      "TypeScript": {
+        "additions": 2347,
+        "deletions": 23
+      },
+      "Shell": {
+        "additions": 380,
+        "deletions": 126
+      },
+      "SQL": {
+        "additions": 13,
+        "deletions": 0
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "f545d9dd44f42700752eec7abf289a2b52a06142",
+    "committed_at": "2026-03-18T23:19:43Z",
+    "additions": 1869,
+    "deletions": 64,
+    "per_language": {
+      "TypeScript": {
+        "additions": 1869,
+        "deletions": 64
+      }
+    }
+  },
+  {
     "repo": "Vectus-AI/waitlist",
     "sha": "abc37b5dafd011d8c679db8ef64d23680da64dd9",
     "committed_at": "2026-03-18T23:26:40Z",
@@ -2743,6 +3074,40 @@
       "CSS": {
         "additions": 361,
         "deletions": 90
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "ad3c33d984d27c26305a849f4b6cb68da168fc80",
+    "committed_at": "2026-03-18T23:29:02Z",
+    "additions": 112,
+    "deletions": 377,
+    "per_language": {
+      "TypeScript": {
+        "additions": 10,
+        "deletions": 67
+      },
+      "Python": {
+        "additions": 102,
+        "deletions": 310
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "b4bda53a51df0bbacee068cab38dfb8ea9d20847",
+    "committed_at": "2026-03-18T23:43:35Z",
+    "additions": 1269,
+    "deletions": 310,
+    "per_language": {
+      "TypeScript": {
+        "additions": 1248,
+        "deletions": 310
+      },
+      "SQL": {
+        "additions": 21,
+        "deletions": 0
       }
     }
   },
@@ -2825,6 +3190,19 @@
     }
   },
   {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "14a9c550e36a199edd5d857449008a4c7029f058",
+    "committed_at": "2026-03-18T23:54:15Z",
+    "additions": 251,
+    "deletions": 17,
+    "per_language": {
+      "TypeScript": {
+        "additions": 251,
+        "deletions": 17
+      }
+    }
+  },
+  {
     "repo": "Vectus-AI/waitlist",
     "sha": "e1429dc1d5541ff1c096b50c2e77b04ba80aa078",
     "committed_at": "2026-03-18T23:59:06Z",
@@ -2864,6 +3242,23 @@
     }
   },
   {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "6f4bc352bc52d6c42d18cc6e5688a9fbe3d0ecd9",
+    "committed_at": "2026-03-19T00:10:30Z",
+    "additions": 2186,
+    "deletions": 5,
+    "per_language": {
+      "TypeScript": {
+        "additions": 2179,
+        "deletions": 5
+      },
+      "Python": {
+        "additions": 7,
+        "deletions": 0
+      }
+    }
+  },
+  {
     "repo": "Vectus-AI/waitlist",
     "sha": "9e8017fee0280222df0318bc70de68035110408e",
     "committed_at": "2026-03-19T04:08:18Z",
@@ -2873,6 +3268,36 @@
       "TypeScript": {
         "additions": 1,
         "deletions": 1
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "372b9daa117c61635e0a782c37301a4147e47695",
+    "committed_at": "2026-03-19T04:23:33Z",
+    "additions": 161,
+    "deletions": 19,
+    "per_language": {
+      "Python": {
+        "additions": 161,
+        "deletions": 19
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "4892dd3dbdc814f7757733f149a26fb2cc116bd2",
+    "committed_at": "2026-03-19T04:39:03Z",
+    "additions": 15,
+    "deletions": 5,
+    "per_language": {
+      "TypeScript": {
+        "additions": 9,
+        "deletions": 5
+      },
+      "SQL": {
+        "additions": 6,
+        "deletions": 0
       }
     }
   },
@@ -2903,6 +3328,27 @@
     }
   },
   {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "f166bdbc12a76e79173c1214c9159b53152d1705",
+    "committed_at": "2026-03-19T06:20:26Z",
+    "additions": 890,
+    "deletions": 993,
+    "per_language": {
+      "TypeScript": {
+        "additions": 101,
+        "deletions": 81
+      },
+      "Python": {
+        "additions": 767,
+        "deletions": 900
+      },
+      "Shell": {
+        "additions": 22,
+        "deletions": 12
+      }
+    }
+  },
+  {
     "repo": "Vectus-AI/waitlist",
     "sha": "9e0df4579b1ad75502957b92de2d108b672bedb0",
     "committed_at": "2026-03-19T06:41:05Z",
@@ -2912,6 +3358,503 @@
       "TypeScript": {
         "additions": 2,
         "deletions": 1
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "89673d24c2ea7094e9870a53f81be3d235813f40",
+    "committed_at": "2026-03-19T06:58:31Z",
+    "additions": 34,
+    "deletions": 23,
+    "per_language": {
+      "TypeScript": {
+        "additions": 28,
+        "deletions": 17
+      },
+      "Shell": {
+        "additions": 6,
+        "deletions": 6
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "4bed4925add9f08f320766b9f0c382943f8a405c",
+    "committed_at": "2026-03-19T08:07:34Z",
+    "additions": 12,
+    "deletions": 1,
+    "per_language": {
+      "TypeScript": {
+        "additions": 12,
+        "deletions": 1
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/waitlist",
+    "sha": "291b265fd03ce85ddf1fa4a864bc29646304ee24",
+    "committed_at": "2026-03-19T08:19:49Z",
+    "additions": 23303,
+    "deletions": 0,
+    "per_language": {
+      "HTML": {
+        "additions": 22509,
+        "deletions": 0
+      },
+      "JavaScript": {
+        "additions": 23,
+        "deletions": 0
+      },
+      "TypeScript": {
+        "additions": 524,
+        "deletions": 0
+      },
+      "CSS": {
+        "additions": 247,
+        "deletions": 0
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "98e9a588ec3b99c8388b499082e662bc667a8f93",
+    "committed_at": "2026-03-19T08:27:43Z",
+    "additions": 72,
+    "deletions": 43,
+    "per_language": {
+      "TypeScript": {
+        "additions": 54,
+        "deletions": 41
+      },
+      "SQL": {
+        "additions": 18,
+        "deletions": 2
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "943cc6dcd77680c131e505e59a8ee9c05191ebec",
+    "committed_at": "2026-03-19T08:32:40Z",
+    "additions": 432,
+    "deletions": 103,
+    "per_language": {
+      "TypeScript": {
+        "additions": 180,
+        "deletions": 22
+      },
+      "Python": {
+        "additions": 252,
+        "deletions": 81
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "faf4b9acc9bae05b672d06e7cc540a18dec96329",
+    "committed_at": "2026-03-19T08:40:00Z",
+    "additions": 226,
+    "deletions": 80,
+    "per_language": {
+      "TypeScript": {
+        "additions": 226,
+        "deletions": 80
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/waitlist",
+    "sha": "2d576f0fc784643c76ef1ff941e6b54dc133392a",
+    "committed_at": "2026-03-19T20:27:53Z",
+    "additions": 498,
+    "deletions": 85,
+    "per_language": {
+      "HTML": {
+        "additions": 498,
+        "deletions": 85
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "74ef0cdbe8bfe2673f82cc89c30e94d4ddc63450",
+    "committed_at": "2026-03-19T20:51:17Z",
+    "additions": 801,
+    "deletions": 141,
+    "per_language": {
+      "TypeScript": {
+        "additions": 537,
+        "deletions": 98
+      },
+      "Python": {
+        "additions": 264,
+        "deletions": 43
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "3aa74b83f2f0db925fb80a26922e0fdd5452dde3",
+    "committed_at": "2026-03-19T21:23:59Z",
+    "additions": 5,
+    "deletions": 1,
+    "per_language": {
+      "Terraform": {
+        "additions": 5,
+        "deletions": 1
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "be412ad6244d14834de8bb658c9277f16d721744",
+    "committed_at": "2026-03-19T21:28:15Z",
+    "additions": 1,
+    "deletions": 1,
+    "per_language": {
+      "Terraform": {
+        "additions": 1,
+        "deletions": 1
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "c9f99bb236d6923bf1699435f28abd3e0a493664",
+    "committed_at": "2026-03-19T21:57:41Z",
+    "additions": 124,
+    "deletions": 56,
+    "per_language": {
+      "TypeScript": {
+        "additions": 124,
+        "deletions": 56
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "4846caf32ecc9f16c49b711f1762f213684067bd",
+    "committed_at": "2026-03-19T21:57:41Z",
+    "additions": 23,
+    "deletions": 50,
+    "per_language": {
+      "TypeScript": {
+        "additions": 23,
+        "deletions": 50
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "8300fe7393d587b58bea702f62524600dde7baaa",
+    "committed_at": "2026-03-19T21:57:41Z",
+    "additions": 307,
+    "deletions": 55,
+    "per_language": {
+      "TypeScript": {
+        "additions": 302,
+        "deletions": 55
+      },
+      "SQL": {
+        "additions": 5,
+        "deletions": 0
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "2eafcd6e3f27bc88ddce67bbb3a9a4cddd1b7799",
+    "committed_at": "2026-03-19T23:05:38Z",
+    "additions": 240,
+    "deletions": 101,
+    "per_language": {
+      "Python": {
+        "additions": 139,
+        "deletions": 17
+      },
+      "TypeScript": {
+        "additions": 101,
+        "deletions": 84
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "e8b6edc304833ba4ff315137e5cc0ecafb7862a8",
+    "committed_at": "2026-03-19T23:53:42Z",
+    "additions": 45,
+    "deletions": 4,
+    "per_language": {
+      "TypeScript": {
+        "additions": 45,
+        "deletions": 4
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "b3d3226df50d8a686bb1e9458ec7f892b185122c",
+    "committed_at": "2026-03-20T00:27:18Z",
+    "additions": 662,
+    "deletions": 154,
+    "per_language": {
+      "TypeScript": {
+        "additions": 385,
+        "deletions": 75
+      },
+      "Python": {
+        "additions": 277,
+        "deletions": 79
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "81d12e3e4604c9091a37e9872fef598283d7e87e",
+    "committed_at": "2026-03-20T00:36:20Z",
+    "additions": 143,
+    "deletions": 4,
+    "per_language": {
+      "TypeScript": {
+        "additions": 143,
+        "deletions": 4
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "4d2957a5618e38c5a5d668b7b52fe3af3ca94aa2",
+    "committed_at": "2026-03-20T01:18:34Z",
+    "additions": 252,
+    "deletions": 64,
+    "per_language": {
+      "TypeScript": {
+        "additions": 252,
+        "deletions": 64
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "e074a702d0f088368b5ff68f8ddfcacde9121073",
+    "committed_at": "2026-03-20T01:40:25Z",
+    "additions": 502,
+    "deletions": 26,
+    "per_language": {
+      "TypeScript": {
+        "additions": 502,
+        "deletions": 26
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "d506debf8191119d3413c729828c9417d29c6087",
+    "committed_at": "2026-03-20T01:51:27Z",
+    "additions": 524,
+    "deletions": 5,
+    "per_language": {
+      "TypeScript": {
+        "additions": 524,
+        "deletions": 5
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "6cb3da949c5e7a5489685f9cebe30ac64c77c4f4",
+    "committed_at": "2026-03-20T04:37:18Z",
+    "additions": 160,
+    "deletions": 0,
+    "per_language": {
+      "TypeScript": {
+        "additions": 160,
+        "deletions": 0
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "3dd9ad6a59120638f6c176b5bab6e570ffb938fe",
+    "committed_at": "2026-03-20T04:42:42Z",
+    "additions": 12,
+    "deletions": 91,
+    "per_language": {
+      "TypeScript": {
+        "additions": 12,
+        "deletions": 91
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "446b736d6d46d9c2ab354f791004d14a52767afe",
+    "committed_at": "2026-03-20T04:51:12Z",
+    "additions": 170,
+    "deletions": 8,
+    "per_language": {
+      "TypeScript": {
+        "additions": 170,
+        "deletions": 8
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "cb13dca5de34d57dd82f414970e50fee6c3276e3",
+    "committed_at": "2026-03-20T05:02:05Z",
+    "additions": 7,
+    "deletions": 16,
+    "per_language": {
+      "TypeScript": {
+        "additions": 7,
+        "deletions": 16
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "682d194775f0177548551e933108083cd4a91045",
+    "committed_at": "2026-03-20T05:30:50Z",
+    "additions": 179,
+    "deletions": 727,
+    "per_language": {
+      "TypeScript": {
+        "additions": 179,
+        "deletions": 727
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "733b318ed291bcf149875abd06fdddfcccab3e2e",
+    "committed_at": "2026-03-20T05:34:37Z",
+    "additions": 160,
+    "deletions": 15,
+    "per_language": {
+      "Python": {
+        "additions": 11,
+        "deletions": 0
+      },
+      "TypeScript": {
+        "additions": 149,
+        "deletions": 15
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "6f8f7ca4e7fc68b43a39296d954e9212e7f3e52d",
+    "committed_at": "2026-03-20T05:37:23Z",
+    "additions": 1,
+    "deletions": 3,
+    "per_language": {
+      "Python": {
+        "additions": 1,
+        "deletions": 3
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "0d568f89f3d53657954e5524a571feb9f28df76e",
+    "committed_at": "2026-03-20T05:53:53Z",
+    "additions": 490,
+    "deletions": 33,
+    "per_language": {
+      "TypeScript": {
+        "additions": 431,
+        "deletions": 33
+      },
+      "SQL": {
+        "additions": 59,
+        "deletions": 0
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "93cc80a1776108f9c03a360ed98fde98664f30c8",
+    "committed_at": "2026-03-20T06:09:06Z",
+    "additions": 1,
+    "deletions": 0,
+    "per_language": {
+      "TypeScript": {
+        "additions": 1,
+        "deletions": 0
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "f069ec5b34f2de1cb82284403eeba149783a6066",
+    "committed_at": "2026-03-20T06:10:53Z",
+    "additions": 2,
+    "deletions": 3,
+    "per_language": {
+      "Python": {
+        "additions": 2,
+        "deletions": 3
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "7a2acdd94c72c66c5454a76498d344c2610313f4",
+    "committed_at": "2026-03-20T06:28:53Z",
+    "additions": 22847,
+    "deletions": 1169,
+    "per_language": {
+      "TypeScript": {
+        "additions": 19136,
+        "deletions": 428
+      },
+      "Python": {
+        "additions": 2494,
+        "deletions": 739
+      },
+      "Shell": {
+        "additions": 748,
+        "deletions": 0
+      },
+      "SQL": {
+        "additions": 444,
+        "deletions": 2
+      },
+      "Terraform": {
+        "additions": 25,
+        "deletions": 0
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "7607d9dced19696f09810ee357d609c0562784cf",
+    "committed_at": "2026-03-20T06:53:37Z",
+    "additions": 53,
+    "deletions": 3,
+    "per_language": {
+      "Shell": {
+        "additions": 45,
+        "deletions": 3
+      },
+      "SQL": {
+        "additions": 8,
+        "deletions": 0
+      }
+    }
+  },
+  {
+    "repo": "Vectus-AI/bg-agents",
+    "sha": "ee4dbe34c3d5b147d328afc5814c79fe0560d8bb",
+    "committed_at": "2026-03-20T07:01:04Z",
+    "additions": 57,
+    "deletions": 4,
+    "per_language": {
+      "Shell": {
+        "additions": 57,
+        "deletions": 4
       }
     }
   }
