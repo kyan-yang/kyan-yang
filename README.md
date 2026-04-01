@@ -9,8 +9,8 @@ currently studying cs+math @ stanford, scouting @ afore capital, and automating 
 
 <!-- profile-stats:start -->
 <p align="center">
-  <img src="./assets/activity-card.png" alt="March GitHub activity specimen" width="100%" />
+  <img src="./assets/activity-card.png" alt="April GitHub activity specimen" width="100%" />
 </p>
 
-<p align="center"><sub>Generated from GitHub commit data for `kyan-yang` for march so far. Updated 2026-03-31 08:46 UTC.</sub></p>
+<p align="center"><sub>Generated from GitHub commit data for `kyan-yang` for april so far. Updated 2026-04-01 08:52 UTC.</sub></p>
 <!-- profile-stats:end -->
