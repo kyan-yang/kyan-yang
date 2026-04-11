@@ -71,7 +71,7 @@ def render_language_donut(per_language: dict[str, RepoStats]) -> list[tuple[str,
     return [(language, amount / total if total else 0.0) for language, amount in segments]
 
 
-def build_weekly_summary(collected: CollectedStats, window_days: int, window_month: str = "") -> WeeklySummary:
+def build_weekly_summary(collected: CollectedStats, window_days: int, window_period: str = "") -> WeeklySummary:
     per_repo = collected.per_repo
     commits = collected.commits
     total_additions = sum(repo.additions for repo in per_repo.values())
@@ -85,7 +85,7 @@ def build_weekly_summary(collected: CollectedStats, window_days: int, window_mon
     net_delta = total_additions - total_deletions
     return WeeklySummary(
         window_days=window_days,
-        window_month=window_month,
+        window_period=window_period,
         total_additions=total_additions,
         total_deletions=total_deletions,
         net_delta=net_delta,
@@ -104,7 +104,7 @@ def build_dashboard_card(
 ) -> DashboardCardData:
     return DashboardCardData(
         window_days=summary.window_days,
-        window_month=summary.window_month,
+        window_period=summary.window_period,
         active_days=summary.active_days,
         total_commits=summary.total_commits,
         total_additions=summary.total_additions,
