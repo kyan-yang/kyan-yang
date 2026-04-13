@@ -5740,5 +5740,43 @@
         "deletions": 22
       }
     }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "2a5a4ef747f007d29c590825442ba074a8fecb9d",
+    "committed_at": "2026-04-13T00:05:23Z",
+    "additions": 929,
+    "deletions": 255,
+    "per_language": {
+      "TypeScript": {
+        "additions": 298,
+        "deletions": 255
+      },
+      "CSS": {
+        "additions": 631,
+        "deletions": 0
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "262eba914370ceea92632e81cd0e180dcf2cb654",
+    "committed_at": "2026-04-13T08:12:44Z",
+    "additions": 4026,
+    "deletions": 1096,
+    "per_language": {
+      "TypeScript": {
+        "additions": 3303,
+        "deletions": 1096
+      },
+      "CSS": {
+        "additions": 289,
+        "deletions": 0
+      },
+      "SQL": {
+        "additions": 434,
+        "deletions": 0
+      }
+    }
   }
 ]
