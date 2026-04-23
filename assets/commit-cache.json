@@ -5791,5 +5791,65 @@
         "deletions": 0
       }
     }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "a071cebe53d8060f1e16a8e185b378f71cb838cc",
+    "committed_at": "2026-04-23T07:09:37Z",
+    "additions": 1,
+    "deletions": 1,
+    "per_language": {
+      "TypeScript": {
+        "additions": 1,
+        "deletions": 1
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "e683f266faea7e699a5eec38673739b26ca8b0cf",
+    "committed_at": "2026-04-23T07:31:24Z",
+    "additions": 62,
+    "deletions": 45,
+    "per_language": {
+      "TypeScript": {
+        "additions": 62,
+        "deletions": 45
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "f70dea98aae5ef2255dcf3dfd11ba8b420a4c479",
+    "committed_at": "2026-04-23T07:31:54Z",
+    "additions": 14,
+    "deletions": 5,
+    "per_language": {
+      "TypeScript": {
+        "additions": 8,
+        "deletions": 5
+      },
+      "SQL": {
+        "additions": 6,
+        "deletions": 0
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/good-learn",
+    "sha": "4fdfcf2e8c43b87c9a1cbd7e7a7d4a9fc5819e9b",
+    "committed_at": "2026-04-23T08:55:26Z",
+    "additions": 345,
+    "deletions": 105,
+    "per_language": {
+      "TypeScript": {
+        "additions": 333,
+        "deletions": 105
+      },
+      "SQL": {
+        "additions": 12,
+        "deletions": 0
+      }
+    }
   }
 ]
