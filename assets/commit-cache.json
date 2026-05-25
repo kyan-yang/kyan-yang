@@ -5154,19 +5154,6 @@
   },
   {
     "repo": "Vectus-AI/bg-agents",
-    "sha": "f8638caa86a2d8534fc821a96bca4ba1e6072371",
-    "committed_at": "2026-03-20T10:17:40Z",
-    "additions": 208,
-    "deletions": 25,
-    "per_language": {
-      "Python": {
-        "additions": 208,
-        "deletions": 25
-      }
-    }
-  },
-  {
-    "repo": "Vectus-AI/bg-agents",
     "sha": "e7cdf33032620156b305052ad34191c2ef2b198d",
     "committed_at": "2026-03-20T12:55:45Z",
     "additions": 32,
