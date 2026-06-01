@@ -5913,6 +5913,32 @@
     }
   },
   {
+    "repo": "kyan-yang/PWR-1EE",
+    "sha": "ef0828d1ad41fcaf3981383d745ae8f8b13f4753",
+    "committed_at": "2026-05-25T04:45:35Z",
+    "additions": 1200,
+    "deletions": 0,
+    "per_language": {
+      "Python": {
+        "additions": 1200,
+        "deletions": 0
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/PWR-1EE",
+    "sha": "519a47bfbf9a6018359c1259a3471b0e03d39541",
+    "committed_at": "2026-05-26T19:29:09Z",
+    "additions": 314,
+    "deletions": 9,
+    "per_language": {
+      "Python": {
+        "additions": 314,
+        "deletions": 9
+      }
+    }
+  },
+  {
     "repo": "kyan-yang/good-learn",
     "sha": "334be8286e08e948fd0c81b5669665f78cd70eb4",
     "committed_at": "2026-05-27T21:47:41Z",
@@ -5926,6 +5952,45 @@
       "TypeScript": {
         "additions": 43,
         "deletions": 2
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/PWR-1EE",
+    "sha": "efe6a188b1479691e71ddc5302a0f13097dc8334",
+    "committed_at": "2026-05-31T22:23:02Z",
+    "additions": 1505,
+    "deletions": 0,
+    "per_language": {
+      "Python": {
+        "additions": 1505,
+        "deletions": 0
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/PWR-1EE",
+    "sha": "21abc08afb813635538db03b9e8f8a70342d1299",
+    "committed_at": "2026-05-31T22:28:45Z",
+    "additions": 116,
+    "deletions": 3,
+    "per_language": {
+      "Python": {
+        "additions": 116,
+        "deletions": 3
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/PWR-1EE",
+    "sha": "1d287bc671a4b2b06861ec3d63f77068160c7ca0",
+    "committed_at": "2026-05-31T22:37:10Z",
+    "additions": 116,
+    "deletions": 3,
+    "per_language": {
+      "Python": {
+        "additions": 116,
+        "deletions": 3
       }
     }
   }
