@@ -7290,6 +7290,45 @@
     }
   },
   {
+    "repo": "kyan-yang/PWR-1EE",
+    "sha": "5663e1b43c36fae9fd938f9027dbf9d9ba7b78af",
+    "committed_at": "2026-05-31T22:47:16Z",
+    "additions": 1686,
+    "deletions": 0,
+    "per_language": {
+      "Python": {
+        "additions": 1686,
+        "deletions": 0
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/PWR-1EE",
+    "sha": "4f0e7800ee629586aee947e7ecd083c95f28c7d7",
+    "committed_at": "2026-06-01T03:05:08Z",
+    "additions": 23,
+    "deletions": 0,
+    "per_language": {
+      "Python": {
+        "additions": 23,
+        "deletions": 0
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/PWR-1EE",
+    "sha": "5a355ce51ea0ad8b8c4c48018aebf427cbc47c59",
+    "committed_at": "2026-06-01T10:56:14Z",
+    "additions": 62,
+    "deletions": 2,
+    "per_language": {
+      "Python": {
+        "additions": 62,
+        "deletions": 2
+      }
+    }
+  },
+  {
     "repo": "kyan-yang/goodlearn",
     "sha": "1da2c727ca3a4a88b46205895a194410effaafca",
     "committed_at": "2026-06-03T07:42:36Z",
@@ -7470,6 +7509,79 @@
       "TypeScript": {
         "additions": 19,
         "deletions": 5
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/PWR-1EE",
+    "sha": "f0c214366e15072f432ea58b780ae4c7f681a749",
+    "committed_at": "2026-06-08T08:17:01Z",
+    "additions": 1769,
+    "deletions": 0,
+    "per_language": {
+      "Python": {
+        "additions": 1769,
+        "deletions": 0
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/anna-frias",
+    "sha": "4870329018ff6afaa7e5288a1825fef0d922f05f",
+    "committed_at": "2026-06-08T10:33:01Z",
+    "additions": 371,
+    "deletions": 0,
+    "per_language": {
+      "JavaScript": {
+        "additions": 126,
+        "deletions": 0
+      },
+      "HTML": {
+        "additions": 52,
+        "deletions": 0
+      },
+      "CSS": {
+        "additions": 193,
+        "deletions": 0
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/anna-frias",
+    "sha": "6b426e603c264ad70e0e2b4512ea2f519570c45a",
+    "committed_at": "2026-06-08T10:36:28Z",
+    "additions": 1,
+    "deletions": 1,
+    "per_language": {
+      "JavaScript": {
+        "additions": 1,
+        "deletions": 1
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/anna-frias",
+    "sha": "0e5e1706a3335a16f955cebb2de70f48c34e7982",
+    "committed_at": "2026-06-08T10:58:54Z",
+    "additions": 2,
+    "deletions": 1,
+    "per_language": {
+      "JavaScript": {
+        "additions": 2,
+        "deletions": 1
+      }
+    }
+  },
+  {
+    "repo": "kyan-yang/anna-frias",
+    "sha": "d22429b6d2610b983c10e0266b1e1eb321e931ca",
+    "committed_at": "2026-06-08T11:01:13Z",
+    "additions": 5,
+    "deletions": 16,
+    "per_language": {
+      "JavaScript": {
+        "additions": 5,
+        "deletions": 16
       }
     }
   }
