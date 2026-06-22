@@ -7,7 +7,7 @@ import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
 
-from .config import API_ROOT, CACHE_PATH, REQUEST_TIMEOUT_SECONDS, detect_language, env_int, excluded_repos, is_code_file
+from .config import API_ROOT, CACHE_PATH, REQUEST_TIMEOUT_SECONDS, detect_language, env_int, excluded_repos, include_in_language_breakdown, is_code_file
 from .models import ActivityDataset, CommitRecord, CommitSummary, GitHubError, RateLimitError, RepoStats
 
 
@@ -221,9 +221,10 @@ def commit_stats(owner: str, repo: str, sha: str) -> CommitSummary:
         summary.included_files += 1
 
         language = detect_language(filename) or "Other"
-        language_stats = summary.per_language.setdefault(language, RepoStats())
-        language_stats.additions += additions
-        language_stats.deletions += deletions
+        if include_in_language_breakdown(language):
+            language_stats = summary.per_language.setdefault(language, RepoStats())
+            language_stats.additions += additions
+            language_stats.deletions += deletions
 
     return summary
 

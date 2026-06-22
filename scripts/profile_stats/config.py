@@ -78,6 +78,8 @@ DEFAULT_CODE_EXTENSIONS = {
     ".less",
     ".lua",
     ".m",
+    ".markdown",
+    ".md",
     ".mm",
     ".nim",
     ".php",
@@ -164,6 +166,8 @@ LANGUAGE_BY_EXTENSION = {
     ".less": "Less",
     ".lua": "Lua",
     ".m": "Objective-C",
+    ".markdown": "Markdown",
+    ".md": "Markdown",
     ".mm": "Objective-C++",
     ".nim": "Nim",
     ".php": "PHP",
@@ -213,6 +217,12 @@ LANGUAGE_BY_FILENAME = {
     "vagrantfile": "Ruby",
     "meson.build": "Meson",
 }
+
+LANGUAGE_BREAKDOWN_EXCLUDED = frozenset({"Markdown"})
+
+
+def include_in_language_breakdown(language: str) -> bool:
+    return language not in LANGUAGE_BREAKDOWN_EXCLUDED
 
 
 def env_int(name: str, default: int) -> int:

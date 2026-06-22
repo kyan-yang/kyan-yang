@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections import defaultdict
 from datetime import date, datetime, timezone
 
-from .config import PACIFIC_TZ
+from .config import PACIFIC_TZ, include_in_language_breakdown
 from .models import CollectedStats, CommitRecord, DashboardCardData, RepoStats, WeeklySummary
 
 
@@ -34,6 +34,8 @@ def aggregate_stats(
         stats.commits += 1
 
         for language, language_stats in commit.per_language.items():
+            if not include_in_language_breakdown(language):
+                continue
             aggregate = per_language[language]
             aggregate.additions += language_stats.additions
             aggregate.deletions += language_stats.deletions
@@ -51,7 +53,11 @@ def aggregate_stats(
 
 def language_breakdown(per_language: dict[str, RepoStats], limit: int = 4) -> list[tuple[str, int]]:
     ranked = sorted(
-        ((language, stats.changed) for language, stats in per_language.items() if stats.changed > 0),
+        (
+            (language, stats.changed)
+            for language, stats in per_language.items()
+            if stats.changed > 0 and include_in_language_breakdown(language)
+        ),
         key=lambda item: (item[1], item[0]),
         reverse=True,
     )
