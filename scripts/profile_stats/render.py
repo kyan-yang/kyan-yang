@@ -17,6 +17,15 @@ REFERENCE_ACTIVE_CYCLE = (
 )
 REFERENCE_REPOSITORIES = '<div class="serif-display" style="font-size: 1.4rem;" vid="22">87</div>'
 REFERENCE_COMMITS = '<div class="serif-display commits-value" vid="25">14,209</div>'
+REFERENCE_COMMIT_LABEL = '<div class="mono-tiny" style="letter-spacing: 0.2em;" vid="27">COMMITS</div>'
+REFERENCE_FRACTION_LINE = '                <div class="fraction-line" style="width: 120px;" vid="26"></div>\n'
+REFERENCE_FRACTION_LINE_STYLE = """        .fraction-line {
+            width: 100%;
+            height: 1px;
+            background: var(--line-subtle);
+            margin: 6px 0;
+        }
+"""
 REFERENCE_ADDITIONS = (
     '<span class="mono-value" vid="32">2,410,892 '
     '<span class="mono-tiny" style="color:var(--text-muted)" vid="33">ADD</span></span>'
@@ -28,6 +37,7 @@ REFERENCE_DELETIONS = (
 REFERENCE_TOTAL_CHANGED = (
     '<div class="serif-display" style="font-size: 1.3rem; margin-top: 4px;" vid="40">3,515,222</div>'
 )
+TOP_STAT_VALUE_STYLE = "font-size: 1.8rem;"
 REFERENCE_RENDER_LOOP = """        function render(t) {
             canvas.width = canvas.clientWidth; canvas.height = canvas.clientHeight;
             gl.viewport(0, 0, canvas.width, canvas.height);
@@ -167,13 +177,13 @@ def build_reference_html(card: DashboardCardData | None = None) -> str:
     html_text = replace_exact(
         html_text,
         REFERENCE_ACTIVE_CYCLE,
-        f'<div class="serif-display" style="font-size: 1.8rem;" vid="17">{active_days_display(card)}</div>',
+        f'<div class="serif-display" style="{TOP_STAT_VALUE_STYLE}" vid="17">{active_days_display(card)}</div>',
         "active cycle",
     )
     html_text = replace_exact(
         html_text,
         REFERENCE_REPOSITORIES,
-        f'<div class="serif-display" style="font-size: 1.4rem;" vid="22">{format_int(card.repo_count)}</div>',
+        f'<div class="serif-display" style="{TOP_STAT_VALUE_STYLE}" vid="22">{format_int(card.repo_count)}</div>',
         "repository count",
     )
     html_text = replace_exact(
@@ -181,6 +191,24 @@ def build_reference_html(card: DashboardCardData | None = None) -> str:
         REFERENCE_COMMITS,
         f'<div class="serif-display commits-value" vid="25">{format_int(card.total_commits)}</div>',
         "commit count",
+    )
+    html_text = replace_exact(
+        html_text,
+        REFERENCE_FRACTION_LINE,
+        "",
+        "commit divider",
+    )
+    html_text = replace_exact(
+        html_text,
+        REFERENCE_FRACTION_LINE_STYLE,
+        "",
+        "commit divider style",
+    )
+    html_text = replace_exact(
+        html_text,
+        REFERENCE_COMMIT_LABEL,
+        '<div class="mono-tiny" style="letter-spacing: 0.2em; margin-top: 13px;" vid="27">COMMITS</div>',
+        "commit label spacing",
     )
     html_text = replace_exact(
         html_text,
