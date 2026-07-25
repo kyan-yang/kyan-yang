@@ -1,12 +1,14 @@
-<div align="center">
-hey, i'm kyan (kai - an)
-<br />
-<br />
-currently studying cs+math @ stanford and automating as much of the tasks i can in my daily life.
-</div>
+hey, i'm kyan (kai - an) 
 
-<br /><br />
+i love building personal software for my various desires  
+  
+i study cs+math @ stanford 
 
-<!-- profile-stats:start -->
+currently a gtm intern @ mintlify
 
-<!-- profile-stats:end -->
+previous stints as swe, writer, and scout at various places  
+  
+
+
+
+
