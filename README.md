@@ -6,8 +6,6 @@ i love building personal software for my various desires
 
 i study cs+math @ stanford
 
-currently marketing and strategy @ mintlify
-
-previous stints as swe, writer, and scout at various places
+previous stints as marketing, swe, writer, and scout at various places
 
 </div>
